@@ -4,6 +4,8 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import authRoutes from "./routes/auth.js";
 import supplierRoutes from "./routes/supplier.js";
+import userRoutes from "./routes/user.js";
+import auctionRoutes from "./routes/auction.js";
 
 dotenv.config();
 
@@ -13,10 +15,13 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use("/uploads", express.static("uploads"));
 
 // Use Auth Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/supplier", supplierRoutes);
+app.use("/api/user", userRoutes);
+app.use("/api/auction", auctionRoutes);
 
 // TODO: Import and use your route modules here
 // Example: app.use("/api/users", userRoutes);

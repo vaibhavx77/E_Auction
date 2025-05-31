@@ -10,13 +10,21 @@ const userSchema = new mongoose.Schema({
     default: "Supplier",
   },
   isVerified: { type: Boolean, default: false },
-  businessDocs: [{ type: String }], // URLs or file references
   profile: {
-    companyName: String,
-    address: String,
-    phone: String,
+    companyName: { type: String, required: function() { return this.role === "Supplier"; } },
+    registrationNumber: { type: String, required: function() { return this.role === "Supplier"; } },
+    taxId: { type: String, required: function() { return this.role === "Supplier"; } },
+    address: { type: String, required: function() { return this.role === "Supplier"; } },
+    coreCapabilities: { type: String, required: function() { return this.role === "Supplier"; } },
+    // ...add more as needed...
   },
+  businessDocs: [{
+    type: String, // file path or URL
+    required: function() { return this.role === "Supplier"; }
+  }],
   createdAt: { type: Date, default: Date.now },
+  otpCode: { type: String },
+  otpExpires: { type: Date },
 });
 
 export default mongoose.model("User", userSchema);
