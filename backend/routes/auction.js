@@ -1,5 +1,9 @@
 import express from "express";
-import { createAuction } from "../controllers/auctionController.js";
+import {
+  createAuction,
+  listAuctions,
+  getAuctionDetails,
+} from "../controllers/auctionController.js";
 import { authenticate, authorizeRoles } from "../middlewares/auth.js";
 import upload from "../utils/multerConfig.js";
 
@@ -18,5 +22,11 @@ router.post(
   ]),
   createAuction
 );
+
+// List auctions
+router.get("/", authenticate, listAuctions);
+
+// Get auction details
+router.get("/:id", authenticate, getAuctionDetails);
 
 export default router;

@@ -6,6 +6,7 @@ import authRoutes from "./routes/auth.js";
 import supplierRoutes from "./routes/supplier.js";
 import userRoutes from "./routes/user.js";
 import auctionRoutes from "./routes/auction.js";
+import bidRoutes from "./routes/bid.js";
 
 dotenv.config();
 
@@ -22,6 +23,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/supplier", supplierRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/auction", auctionRoutes);
+app.use("/api/bid", bidRoutes);
 
 // TODO: Import and use your route modules here
 // Example: app.use("/api/users", userRoutes);
