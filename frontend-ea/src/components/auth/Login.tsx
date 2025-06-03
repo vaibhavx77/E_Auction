@@ -4,15 +4,16 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import axios from 'axios';
+import api from '../../lib/api';
 import { useContext } from 'react';
-import { AuthContext } from '../../contexts/AuthContext';
+import  AuthContext  from '../../contexts/AuthContext';
 
 export default function Login() {
   const router = useRouter();
   const { setAuth } = useContext(AuthContext);
   const [showOtp, setShowOtp] = useState(false);
   const [email, setEmail] = useState('');
+  const [error, setError] = useState<string | null>(null); // Add error state
 
   const loginSchema = Yup.object({
     email: Yup.string().email('Invalid email address').required('This field is required'),
@@ -28,25 +29,17 @@ export default function Login() {
     validationSchema: loginSchema,
     onSubmit: async (values) => {
       try {
-        const response = await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`,
-          {
-            email: values.email,
-            password: values.password,
-          }
-        );
-        if (response.data.mfaRequired) {
+        setError(null); // Clear previous errors
+        const response = await api.post('/api/auth/login', {
+          email: values.email,
+          password: values.password,
+        });
+        if (response.data.message === 'OTP sent to your email') {
           setEmail(values.email);
           setShowOtp(true);
-        } else {
-          setAuth({
-            userId: response.data.userId,
-            role: response.data.role,
-            token: response.data.token,
-          });
-          router.push('/dashboard');
         }
-      } catch (error) {
+      } catch (error: any) {
+        setError(error.response?.data?.message || 'Login failed');
         console.error('Login error:', error);
       }
     },
@@ -57,20 +50,21 @@ export default function Login() {
     validationSchema: otpSchema,
     onSubmit: async (values) => {
       try {
-        const response = await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/auth/verify-otp`,
-          {
-            email,
-            otp: values.otp,
-          }
-        );
+        setError(null); // Clear previous errors
+        const response = await api.post('/api/auth/verify-otp', {
+          email,
+          otp: values.otp,
+        });
+        const { token, user } = response.data;
         setAuth({
-          userId: response.data.userId,
-          role: response.data.role,
-          token: response.data.token,
+          userId: user.id, // Map user.id to userId
+          name: user.name, // Add name
+          role: user.role,
+          token,
         });
         router.push('/dashboard');
-      } catch (error) {
+      } catch (error: any) {
+        setError(error.response?.data?.message || 'OTP verification failed');
         console.error('OTP verification error:', error);
       }
     },
@@ -79,6 +73,7 @@ export default function Login() {
   return (
     <div className="max-w-md mx-auto p-4">
       <h1 className="text-2xl font-bold">Login</h1>
+      {error && <p className="text-red-500">{error}</p>}
       {!showOtp ? (
         <form onSubmit={loginFormik.handleSubmit} className="space-y-4">
           <div>
