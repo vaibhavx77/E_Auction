@@ -2,7 +2,7 @@
 'use client';
 import { useContext } from 'react';
 import { useRouter } from 'next/navigation';
-import  AuthContext  from '../../contexts/AuthContext';
+import AuthContext from '../../contexts/AuthContext';
 
 export default function Header() {
   const { userId, name, role, logout } = useContext(AuthContext);
@@ -14,11 +14,16 @@ export default function Header() {
       <div className="space-x-4">
         {userId && (
           <>
-            <span>{name || 'User'}</span> {/* Use name instead of userId */}
+            <span>{name || 'User'}</span>
             {role === 'Admin' && (
-              <button onClick={() => router.push('/admin/create-user')}>
-                Create User
-              </button>
+              <>
+                <button onClick={() => router.push('/admin/create-ep-member')}>
+                  Create EP Member
+                </button>
+                <button onClick={() => router.push('/admin/invite-supplier')}>
+                  Invite Supplier
+                </button>
+              </>
             )}
             <button onClick={logout}>Logout</button>
           </>
