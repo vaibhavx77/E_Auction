@@ -16,6 +16,9 @@ const userSchema = new mongoose.Schema({
     taxId: { type: String, required: function() { return this.role === "Supplier"; } },
     address: { type: String, required: function() { return this.role === "Supplier"; } },
     coreCapabilities: { type: String, required: function() { return this.role === "Supplier"; } },
+    portOfLoading: { type: String, required: function() { return this.role === "Supplier"; } },
+    containerCapacity: { type: Number, required: function() { return this.role === "Supplier"; } },
+    importDutiesInfo: { type: String, required: function() { return this.role === "Supplier"; } },
     // ...add more as needed...
   },
   businessDocs: [{
@@ -25,6 +28,7 @@ const userSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
   otpCode: { type: String },
   otpExpires: { type: Date },
+  agreedToTerms: { type: Boolean, required: function() { return this.role === "Supplier"; } },
 });
 
 export default mongoose.model("User", userSchema);

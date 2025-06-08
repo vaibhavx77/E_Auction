@@ -3,3 +3,7 @@
 
 # env files 
 .env*
+
+# other
+/doc.txt
+/toDo.txt

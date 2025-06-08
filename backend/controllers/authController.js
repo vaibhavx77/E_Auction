@@ -2,19 +2,29 @@ import User from "../models/user.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { sendOTP } from "../utils/mailer.js";
+import Invitation from "../models/invitation.js";
 
 // Register a new user (EP member or Supplier)
 export const register = async (req, res) => {
   try {
-    const { name, email, password, role, profile, businessDocs } = req.body;
+    const { name, email, password, role, profile, businessDocs, invitationToken, agreedToTerms } = req.body;
 
     // Only allow "Supplier" role for public registration
     if (role && role !== "Supplier") {
       return res.status(403).json({ message: "Only Supplier registration is allowed here." });
     }
 
+    // Validate invitation token
+    const invitation = await Invitation.findOne({ email, token: invitationToken, used: false });
+    if (!invitation) {
+      return res.status(400).json({ message: "Invalid or expired invitation token." });
+    }
+
     // Check required supplier fields
-    const requiredFields = ["companyName", "registrationNumber", "taxId", "address", "coreCapabilities"];
+    const requiredFields = [
+      "companyName", "registrationNumber", "taxId", "address", "coreCapabilities",
+      "portOfLoading", "containerCapacity", "importDutiesInfo"
+    ];
     for (const field of requiredFields) {
       if (!profile || !profile[field]) {
         return res.status(400).json({ message: `Missing required field: ${field}` });
@@ -22,6 +32,9 @@ export const register = async (req, res) => {
     }
     if (!businessDocs || businessDocs.length < 2) {
       return res.status(400).json({ message: "Business registration and tax documents are required." });
+    }
+    if (!agreedToTerms) {
+      return res.status(400).json({ message: "You must agree to the terms to register." });
     }
 
     // Check if user already exists
@@ -39,9 +52,15 @@ export const register = async (req, res) => {
       role: "Supplier",
       profile,
       businessDocs,
+      agreedToTerms,
     });
 
     await user.save();
+
+    // Mark invitation as used
+    invitation.used = true;
+    invitation.usedAt = new Date();
+    await invitation.save();
 
     res.status(201).json({ message: "Registration successful" });
   } catch (err) {

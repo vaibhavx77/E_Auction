@@ -1,6 +1,6 @@
 import express from "express";
 import { authenticate, authorizeRoles } from "../middlewares/auth.js";
-import { submitBid, updateBid, getBidHistory } from "../controllers/bidController.js";
+import { submitBid, updateBid, getBidHistory, getAuctionRanking } from "../controllers/bidController.js";
 
 const router = express.Router();
 
@@ -12,5 +12,8 @@ router.put("/:bidId", authenticate, authorizeRoles("Supplier"), updateBid);
 
 // Suppliers get their bid history for an auction
 router.get("/history/:auctionId", authenticate, authorizeRoles("Supplier"), getBidHistory);
+
+// Get auction ranking
+router.get("/ranking/:auctionId", authenticate, getAuctionRanking);
 
 export default router;

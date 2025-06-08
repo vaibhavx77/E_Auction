@@ -1,6 +1,7 @@
 import Auction from "../models/auction.js";
 import Lot from "../models/lot.js";
 import User from "../models/user.js";
+import Bid from "../models/bid.js";
 
 // Create Auction (with optional lots)
 export const createAuction = async (req, res) => {
@@ -117,5 +118,82 @@ export const getAuctionDetails = async (req, res) => {
     res.json(auction);
   } catch (err) {
     res.status(500).json({ message: "Failed to fetch auction details", error: err.message });
+  }
+};
+
+// Pause auction
+export const pauseAuction = async (req, res) => {
+  try {
+    const auction = await Auction.findById(req.params.id);
+    if (!auction) return res.status(404).json({ message: "Auction not found" });
+
+    if (auction.status !== "Active") {
+      return res.status(400).json({ message: "Only active auctions can be paused." });
+    }
+
+    auction.status = "Paused";
+    await auction.save();
+
+    // (Optional) Emit real-time update
+    if (req.app.get("io")) {
+      req.app.get("io").to(auction._id.toString()).emit("auctionStatusChanged", { status: "Paused" });
+    }
+
+    res.json({ message: "Auction paused", auction });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to pause auction", error: err.message });
+  }
+};
+
+// Resume auction
+export const resumeAuction = async (req, res) => {
+  try {
+    const auction = await Auction.findById(req.params.id);
+    if (!auction) return res.status(404).json({ message: "Auction not found" });
+
+    if (auction.status !== "Paused") {
+      return res.status(400).json({ message: "Only paused auctions can be resumed." });
+    }
+
+    auction.status = "Active";
+    await auction.save();
+
+    // (Optional) Emit real-time update
+    if (req.app.get("io")) {
+      req.app.get("io").to(auction._id.toString()).emit("auctionStatusChanged", { status: "Active" });
+    }
+
+    res.json({ message: "Auction resumed", auction });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to resume auction", error: err.message });
+  }
+};
+
+export const getAuctionMonitoring = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const auction = await Auction.findById(id).populate("lots invitedSuppliers");
+    if (!auction) return res.status(404).json({ message: "Auction not found" });
+
+    // Get all bids for this auction
+    const bids = await Bid.find({ auction: id });
+
+    // Participation: unique suppliers who have placed bids
+    const participatingSuppliers = [...new Set(bids.map(b => b.supplier.toString()))];
+
+    // Bid activity timeline
+    const bidTimeline = bids.map(b => ({
+      supplier: b.supplier,
+      amount: b.amount,
+      createdAt: b.createdAt
+    }));
+
+    res.json({
+      auction,
+      participationCount: participatingSuppliers.length,
+      bidTimeline
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch monitoring data", error: err.message });
   }
 };

@@ -34,6 +34,11 @@ export const submitBid = async (req, res) => {
     });
 
     await bid.save();
+
+    // Emit real-time update to auction room
+    const io = req.app.get("io");
+    io.to(auctionId).emit("newBid", { bid });
+
     res.status(201).json({ message: "Bid submitted", bid });
   } catch (err) {
     res.status(500).json({ message: "Bid submission failed", error: err.message });
@@ -83,5 +88,38 @@ export const getBidHistory = async (req, res) => {
     res.json(bids);
   } catch (err) {
     res.status(500).json({ message: "Failed to fetch bid history", error: err.message });
+  }
+};
+
+export const getAuctionRanking = async (req, res) => {
+  try {
+    const { auctionId } = req.params;
+    const auction = await Auction.findById(auctionId);
+    if (!auction) return res.status(404).json({ message: "Auction not found" });
+
+    // Get all active bids for this auction
+    const bids = await Bid.find({ auction: auctionId, status: "Active" });
+
+    // Calculate weighted score if costParams are set
+    const rankedBids = bids.map(bid => {
+      let score = 0;
+      if (auction.costParams) {
+        score += (bid.amount || 0) * (auction.costParams.priceWeight || 1);
+        score += (bid.fobCost || 0) * (auction.costParams.fobWeight || 0);
+        score += (bid.tax || 0) * (auction.costParams.taxWeight || 0);
+        score += (bid.duty || 0) * (auction.costParams.dutyWeight || 0);
+        score -= (bid.performanceScore || 0) * (auction.costParams.performanceWeight || 0);
+      } else {
+        score = bid.totalCost;
+      }
+      return { ...bid.toObject(), score };
+    });
+
+    // Sort by score ascending (lower is better)
+    rankedBids.sort((a, b) => a.score - b.score);
+
+    res.json(rankedBids);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to get ranking", error: err.message });
   }
 };
