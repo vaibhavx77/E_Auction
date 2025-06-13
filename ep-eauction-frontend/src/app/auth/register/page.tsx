@@ -1,11 +1,10 @@
 'use client';
 
-import { useState, useRef, memo } from 'react';
+import { useState,  memo } from 'react';
 
-const lotKeys = ['LOT-001', 'LOT-002', 'LOT-003'] as const;
-type LotId = typeof lotKeys[number];
+type LotId = 'LOT-001' | 'LOT-002' | 'LOT-003';
 
-const AgreementScreen = memo(({ setStep }: { setStep: (step: number) => void }) => {
+const AgreementScreen = memo(function AgreementScreen({ setStep }: { setStep: (step: number) => void }) {
   console.log('Rendering AgreementScreen');
   return (
     <main className="min-h-screen flex items-center justify-center bg-gray-100 p-4 text-gray-900">
@@ -208,7 +207,7 @@ const StepTwo = ({
 };
 
 
-const SuccessScreen = memo(() => {
+const SuccessScreen = memo(function SuccessScreen() {
   console.log('Rendering SuccessScreen');
   return (
     <main className="min-h-screen flex flex-col items-center justify-center p-6 text-center bg-green-50 text-gray-900">

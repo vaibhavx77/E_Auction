@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -18,7 +19,7 @@ export default function Sidebar() {
             isActive('/ep/dashboard') ? 'text-blue-600' : ''
           }`}
         >
-          <img src="/icons/auctions_dashboard.svg" alt="Auctions" className="w-5 h-5" />
+          <Image width={5} height={5} src="/icons/auctions_dashboard.svg"  alt="Auctions" className="w-5 h-5" />
           Auctions
         </Link>
 
@@ -28,7 +29,7 @@ export default function Sidebar() {
             isActive('/ep/suppliers') ? 'text-blue-600' : ''
           }`}
         >
-          <img src="/icons/group.svg" alt="Suppliers" className="w-5 h-5" />
+          <Image width={5} height={5} src="/icons/group.svg"  alt="Suppliers" className="w-5 h-5" />
           Suppliers
         </Link>
 
@@ -38,7 +39,7 @@ export default function Sidebar() {
             isActive('/ep/settings') ? 'text-blue-600' : ''
           }`}
         >
-          <img src="/icons/profile_settings.svg" alt="Settings" className="w-5 h-5" />
+          <Image width={5} height={5} src="/icons/profile_settings.svg"  alt="Settings" className="w-5 h-5" />
           Settings
         </Link>
       </nav>

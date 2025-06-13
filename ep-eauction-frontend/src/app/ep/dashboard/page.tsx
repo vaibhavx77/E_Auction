@@ -4,6 +4,7 @@ import AuctionTable from '@/components/AuctionTable';
 import DashboardLayout from '@/components/DashboardLayout';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 export default function EPDashboard() {
   const [tab, setTab] = useState<'All' | 'Live' | 'Scheduled' | 'Completed'>('All');
@@ -21,7 +22,7 @@ export default function EPDashboard() {
           <p className="text-sm text-[#5E5E65]">Create, track, and review auctions</p>
         </div>
         <button className="w-10 h-10 bg-[#F7F7FC] rounded-full flex items-center justify-center">
-          <img src="/icons/bell.svg" alt="Notifications" className="w-5 h-5" />
+          <Image width={5} height={5} src="/icons/bell.svg" alt="Notifications" className="w-5 h-5" />
         </button>
       </div>
 
@@ -33,7 +34,7 @@ export default function EPDashboard() {
               <div className="h-2 w-2 rounded-full bg-red-500 mt-0.5" />
               <span className="text-sm font-medium">Active Auctions</span>
             </div>
-            <img src="/icons/arrow_right.svg" alt="Chevron" className="w-4 h-4" />
+            <Image width={5} height={5} src="/icons/arrow_right.svg" alt="Chevron" className="w-4 h-4" />
           </div>
           <div className="flex justify-between items-end mt-4">
             <span className="text-4xl font-semibold">3</span>
@@ -43,7 +44,7 @@ export default function EPDashboard() {
 
         <div className="bg-white rounded-lg border border-[#EAECF0] p-4 flex flex-col justify-between h-32">
           <div className="flex items-center gap-1 text-sm font-medium">
-            <img src="/icons/block_code.svg" alt="Total Auctions" className="w-4 h-4" />
+            <Image width={5} height={5} src="/icons/block_code.svg" alt="Total Auctions" className="w-4 h-4" />
             Total Auctions
           </div>
           <div className="text-4xl font-semibold mt-4">6</div>
@@ -51,7 +52,7 @@ export default function EPDashboard() {
 
         <div className="bg-white rounded-lg border border-[#EAECF0] p-4 flex flex-col justify-between h-32">
           <div className="flex items-center gap-1 text-sm font-medium">
-            <img src="/icons/calendar_clock.svg" alt="Schedule Auction" className="w-4 h-4" />
+            <Image width={5} height={5} src="/icons/calendar_clock.svg" alt="Schedule Auction" className="w-4 h-4" />
             Schedule Auction
           </div>
           <div className="text-4xl font-semibold mt-4">2</div>
@@ -59,7 +60,7 @@ export default function EPDashboard() {
 
         <div className="bg-white rounded-lg border border-[#EAECF0] p-4 flex flex-col justify-between h-32">
           <div className="flex items-center gap-1 text-sm font-medium">
-            <img src="/icons/group.svg" alt="Total Suppliers" className="w-4 h-4" />
+            <Image width={5} height={5} src="/icons/group.svg" alt="Total Suppliers" className="w-4 h-4" />
             Total Suppliers
           </div>
           <div className="text-4xl font-semibold mt-4">24</div>
@@ -109,14 +110,14 @@ export default function EPDashboard() {
             onClick={() => router.push('/ep/suppliers')}
             className="flex items-center gap-2 border border-[#DDE1EB] px-4 py-2 rounded text-sm text-[#383838]"
           >
-            <img src="/icons/invite.svg" alt="Invite" className="w-4 h-4" />
+            <Image width={5} height={5} src="/icons/invite.svg" alt="Invite" className="w-4 h-4" />
             Invite Suppliers
           </button>
           <button
             onClick={() => router.push('/ep/auction/create')}
             className="flex items-center gap-2 bg-[#007AFF] text-white px-4 py-2 rounded text-sm font-semibold"
           >
-            <img src="/icons/plus.svg" alt="Plus" className="w-4 h-4" />
+            <Image width={5} height={5} src="/icons/plus.svg" alt="Plus" className="w-4 h-4" />
             New Auction
           </button>
         </div>

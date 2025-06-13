@@ -1,6 +1,7 @@
 'use client';
 
 import DashboardLayout from '@/components/DashboardLayout';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
 export default function SettingsPage() {
@@ -58,7 +59,7 @@ export default function SettingsPage() {
           onClick={() => router.push('/ep/settings/import-duty-matrix')}
           className="border border-[#DDE1EB] px-4 py-2 rounded text-sm text-[#383838] flex items-center gap-2"
         >
-          <img src="/icons/edit_pen.svg" alt="Edit" className="w-4 h-4" />
+          <Image width={5} height={5} src="/icons/edit_pen.svg" alt="Edit" className="w-4 h-4" />
           Edit
         </button>
       </div>
@@ -73,7 +74,7 @@ export default function SettingsPage() {
           onClick={() => router.push('/ep/settings/currency')}
           className="border border-[#DDE1EB] px-4 py-2 rounded text-sm text-[#383838] flex items-center gap-2"
         >
-          <img src="/icons/edit_pen.svg" alt="Edit" className="w-4 h-4" />
+          <Image width={5} height={5} src="/icons/edit_pen.svg" alt="Edit" className="w-4 h-4" />
           Edit
         </button>
       </div>

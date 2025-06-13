@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import DashboardLayout from '@/components/DashboardLayout';
+import Image from 'next/image';
 
 export default function WeeklyCurrencyRatesPage() {
   const router = useRouter();
@@ -30,7 +31,7 @@ export default function WeeklyCurrencyRatesPage() {
             className="flex items-center gap-2 mb-1 cursor-pointer"
             onClick={() => router.push('/ep/settings')}
           >
-            <img src="/icons/arrow_back.svg" alt="Back" className="w-4 h-4" />
+            <Image width={5} height={5} src="/icons/arrow_back.svg" alt="Back" className="w-4 h-4" />
             <h1 className="text-lg font-semibold">Weekly Currency Rates</h1>
           </div>
           <p className="text-sm text-[#5E5E65]">
@@ -71,7 +72,7 @@ export default function WeeklyCurrencyRatesPage() {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full border border-[#DDE1EB] p-2 pl-10 rounded text-sm"
             />
-            <img
+            <Image width={5} height={5}
               src="/icons/magnifying.svg"
               alt="Search"
               className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2"
@@ -81,7 +82,7 @@ export default function WeeklyCurrencyRatesPage() {
             onClick={() => alert('Add Country')}
             className="flex items-center gap-2 bg-[#F0F6FF] text-[#007AFF] text-sm font-medium px-4 py-2 rounded"
           >
-            <img src="/icons/add.svg" alt="Plus" className="w-4 h-4" />
+            <Image width={5} height={5} src="/icons/add.svg" alt="Plus" className="w-4 h-4" />
             Add Country
           </button>
         </div>
@@ -110,7 +111,7 @@ export default function WeeklyCurrencyRatesPage() {
                   <div className="flex justify-between items-center pr-2">
                     <span>{row.rate}</span>
                     {/* Show edit pen for all rows */}
-                    <img
+                    <Image width={5} height={5}
                       src="/icons/edit_pen.svg"
                       alt="Edit"
                       className="w-4 h-4 cursor-pointer opacity-60 hover:opacity-100"

@@ -85,7 +85,7 @@ export default function AuctionTable({
       const isNoneSelected = selectedRows.length === 0;
       selectAllRef.current.indeterminate = !isAllSelected && !isNoneSelected;
     }
-  }, [selectedRows, tab, searchQuery]);
+  }, [selectedRows, tab, searchQuery, filtered.length]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -98,7 +98,7 @@ export default function AuctionTable({
     };
     document.addEventListener('click', handleClickOutside);
     return () => document.removeEventListener('click', handleClickOutside);
-  }, []);
+  }, [filtered.length, selectedRows, tab, searchQuery]);
 
   return (
     <div className="bg-white border rounded border-[#EAECF0] overflow-x-auto">

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import EPHeader from '@/components/EPHeader';
 import AuctionBreadcrumb from '@/components/AuctionBreadcrumb';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 const steps = [
   'Auction Details',
@@ -21,10 +22,6 @@ export default function CreateAuctionPage() {
     if (step < steps.length - 1) setStep(step + 1);
   };
 
-  const goBack = () => {
-    if (step > 0) setStep(step - 1);
-  };
-
   return (
     <div className="flex min-h-screen bg-white text-[#383838] flex-col">
       <EPHeader />
@@ -34,7 +31,7 @@ export default function CreateAuctionPage() {
           className="flex items-center gap-2 mb-1 cursor-pointer"
           onClick={() => router.push('/ep/dashboard')}
         >
-          <img src="/icons/arrow_left.svg" alt="Back" className="w-4 h-4" />
+          <Image width={5} height={5} src="/icons/arrow_left.svg" alt="Back" className="w-4 h-4" />
           <h1 className="text-xl font-semibold">Create Auction</h1>
         </div>
         <p className="text-sm text-[#5E5E65] mb-6">
