@@ -2,21 +2,33 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import axios from 'axios';
+import OtpModal from '@/components/OtpModal';
 
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (email.includes('ep')) {
-      router.push('/ep/dashboard');
-    } else {
-      router.push('/supplier/dashboard');
-    }
-  };
+const [showOtp, setShowOtp] = useState(false);
+
+const handleLogin = async (e: React.FormEvent) => {
+  e.preventDefault();
+  try {
+    const res = await axios.post('http://localhost:5000/api/auth/login', { email, password });
+    setShowOtp(true); // 👈 show OTP modal
+  } catch (err: any) {
+    alert(err.response?.data?.message || 'Login failed');
+  }
+};
+
+const handleOtpVerified = (token: string, role: string) => {
+  localStorage.setItem('token', token);
+  router.push(role === 'supplier' ? '/supplier/dashboard' : '/ep/dashboard');
+};
+
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-[#F9FAFB] px-4">
@@ -27,6 +39,10 @@ export default function LoginPage() {
         <h2 className="text-center text-base font-semibold mb-6">
           Login into your account
         </h2>
+
+        {error && (
+          <p className="text-red-600 text-sm text-center mb-4">{error}</p>
+        )}
 
         <div className="mb-4">
           <label className="block text-sm font-medium mb-1">Email</label>
@@ -65,9 +81,17 @@ export default function LoginPage() {
           type="submit"
           className="w-full bg-[#007AFF] text-white text-sm font-medium py-2 rounded hover:opacity-90 transition"
         >
-          Next
+          Login
         </button>
       </form>
+      <OtpModal
+  email={email}
+  open={showOtp}
+  onClose={() => setShowOtp(false)}
+  onVerified={handleOtpVerified}
+/>
+
     </main>
   );
 }
+
