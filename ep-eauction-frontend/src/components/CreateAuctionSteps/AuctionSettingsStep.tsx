@@ -1,4 +1,9 @@
-export default function AuctionSettingsStep() {
+type AuctionSettingsStepProps = {
+  data: any;
+  onChange: (data: any) => void;
+};
+
+export default function AuctionSettingsStep({ data, onChange }: AuctionSettingsStepProps) {
   return (
     <div>
       <h2 className="text-lg font-semibold mb-2">Set auction behavior and schedule</h2>
@@ -11,6 +16,8 @@ export default function AuctionSettingsStep() {
           <input
             type="datetime-local"
             className="w-full border border-[#DDE1EB] px-3 py-2 rounded text-sm"
+            value={data.startTime || ''}
+            onChange={e => onChange({ startTime: e.target.value })}
           />
         </div>
         <div>
@@ -18,6 +25,8 @@ export default function AuctionSettingsStep() {
           <input
             type="datetime-local"
             className="w-full border border-[#DDE1EB] px-3 py-2 rounded text-sm"
+            value={data.endTime || ''}
+            onChange={e => onChange({ endTime: e.target.value })}
           />
         </div>
         <div>

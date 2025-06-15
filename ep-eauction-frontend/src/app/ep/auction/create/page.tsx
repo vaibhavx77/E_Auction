@@ -22,20 +22,57 @@ const steps = [
 
 export default function CreateAuctionPage() {
   const [step, setStep] = useState(0);
+  const [auctionData, setAuctionData] = useState<any>({});
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const goNext = () => {
     if (step < steps.length - 1) setStep(step + 1);
   };
 
+  const updateAuctionData = (data: any) => {
+    setAuctionData((prev: any) => ({ ...prev, ...data }));
+  };
+
   const renderStepContent = (step: number) => {
     switch (step) {
-      case 0: return <AuctionDetailsStep />;
-      case 1: return <ProductLotStep />;
-      case 2: return <AuctionSettingsStep />;
-      case 3: return <SupplierInvitationStep />;
-      case 4: return <ReviewLaunchStep />;
+      case 0: return <AuctionDetailsStep data={auctionData} onChange={updateAuctionData} />;
+      case 1: return <ProductLotStep data={auctionData} onChange={updateAuctionData} />;
+      case 2: return <AuctionSettingsStep data={auctionData} onChange={updateAuctionData} />;
+      case 3: return <SupplierInvitationStep data={auctionData} onChange={updateAuctionData} />;
+      case 4: return <ReviewLaunchStep data={auctionData} />;
       default: return null;
+    }
+  };
+
+  const handleSubmit = async () => {
+    setLoading(true);
+    if (!auctionData.title || !auctionData.reservePrice || !auctionData.currency || !auctionData.startTime || !auctionData.endTime) {
+      alert('Please fill all required fields.');
+      setLoading(false);
+      return;
+    }
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auction/create`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(auctionData),
+      });
+      setLoading(false);
+      if (res.ok) {
+        alert('Auction created successfully!');
+        router.push('/ep/dashboard');
+      } else {
+        const data = await res.json();
+        alert(data.message || 'Auction creation failed');
+      }
+    } catch (err) {
+      setLoading(false);
+      alert('Network error');
     }
   };
 
@@ -73,10 +110,15 @@ export default function CreateAuctionPage() {
           <button className="border border-[#DDE1EB] px-4 py-2 rounded text-sm">Save Draft</button>
           <div className="flex gap-4">
             <button
-              onClick={goNext}
+              onClick={step === steps.length - 1 ? handleSubmit : goNext}
               className="px-4 py-2 bg-blue-600 text-white rounded text-sm"
+              disabled={loading}
             >
-              {step === steps.length - 1 ? 'Launch Auction' : 'Next'}
+              {loading
+                ? 'Submitting...'
+                : step === steps.length - 1
+                ? 'Launch Auction'
+                : 'Next'}
             </button>
           </div>
         </div>

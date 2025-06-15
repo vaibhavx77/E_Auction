@@ -1,4 +1,9 @@
-export default function ProductLotStep() {
+type ProductLotStepProps = {
+  data: any;
+  onChange: (data: any) => void;
+};
+
+export default function ProductLotStep({ data, onChange }: ProductLotStepProps) {
   return (
     <div>
       <div className="flex justify-between items-start mb-4">
@@ -40,6 +45,8 @@ export default function ProductLotStep() {
               type="text"
               placeholder="Product Name"
               className="w-full bg-white border border-[#DDE1EB] px-3 py-2 rounded text-sm"
+              value={data.productName || ''}
+              onChange={e => onChange({ productName: e.target.value })}
             />
           </div>
           <div>
@@ -79,6 +86,17 @@ export default function ProductLotStep() {
               className="w-full bg-white border border-[#DDE1EB] px-3 py-2 rounded text-sm"
             />
           </div>
+        </div>
+
+        <div>
+          <label className="block text-sm mb-1">LOT Count</label>
+          <input
+            type="number"
+            placeholder="Number of LOTs"
+            className="w-full border border-[#DDE1EB] px-3 py-2 rounded text-sm"
+            value={data.lotCount || ''}
+            onChange={e => onChange({ lotCount: e.target.value })}
+          />
         </div>
       </div>
     </div>
