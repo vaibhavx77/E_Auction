@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import DutyTable from "../models/dutyTable.js";
 import Product from "../models/Product.js";
 import Country from "../models/Country.js";
@@ -53,15 +54,16 @@ export const addDutyRate = async (req, res) => {
     if (!product || !nation) {
       return res.status(400).json({ message: "Invalid product or country ID" });
     }
+    const decimalDutyRate = dutyRate !== null ? mongoose.Types.Decimal128.fromString(dutyRate.toString()) : null;
 
     let duty = await DutyTable.findOne({ productCategory, country });
 
     if (duty) {
-      duty.dutyRate = dutyRate;
+      duty.dutyRate = decimalDutyRate;
       await duty.save();
       return res.status(200).json({ message: "Duty rate updated", duty });
     } else {
-      duty = new DutyTable({ productCategory, country, dutyRate });
+      duty = new DutyTable({ productCategory, country, decimalDutyRate });
       await duty.save();
       return res.status(201).json({ message: "Duty rate added", duty });
     }
@@ -77,7 +79,17 @@ export const getDutyRates = async (req, res) => {
       .populate('productCategory', 'name')
       .populate('country', 'name code');
 
-    res.json(rates);
+ const formattedRates = rates.map((rate) => ({
+      _id: rate._id,
+      product: rate.productCategory.name,
+      country: rate.country.name,
+      code: rate.country.code,
+      dutyRate: rate.dutyRate ? parseFloat(rate.dutyRate.toString()) : null,
+      createdAt: rate.createdAt,
+      updatedAt: rate.updatedAt
+    }));
+
+    res.json(formattedRates);
   } catch (err) {
     res.status(500).json({ message: "Failed to fetch duty rates", error: err.message });
   }

@@ -14,7 +14,7 @@ const mongoose = require('mongoose');
 const importDutySchema = new mongoose.Schema({
   product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
   country: { type: mongoose.Schema.Types.ObjectId, ref: 'Country', required: true },
-  dutyRate: { type: Number, default: null } // can be filled later
+  dutyRate: { type: mongoose.Schema.Types.Decimal128, default: null } // can be filled later
 }, { timestamps: true });
 
 importDutySchema.index({ product: 1, country: 1 }, { unique: true });
