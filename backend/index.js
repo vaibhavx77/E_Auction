@@ -7,7 +7,7 @@ import supplierRoutes from "./routes/supplier.js";
 import userRoutes from "./routes/user.js";
 import auctionRoutes from "./routes/auction.js";
 import bidRoutes from "./routes/bid.js";
-// import invitationRoutes from "./routes/invitation.js";
+import invitationRoutes from "./routes/invitation.js";
 import cron from "node-cron";
 import Auction from "./models/auction.js";
 import http from "http";
@@ -39,12 +39,12 @@ app.use("/api/supplier", supplierRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/auction", auctionRoutes);
 app.use("/api/bid", bidRoutes);
-// app.use("/api/invitation", invitationRoutes);
+app.use("/api/invitation", invitationRoutes);
 app.use("/api/auction-qa", auctionQARoutes);
 
 // TODO: Import and use your route modules here
 // Example: app.use("/api/users", userRoutes);
-
+console.log(process.env.MONGODB_URI, "process.env.MONGODB_URI")
 // MongoDB Connection
 mongoose
   .connect(process.env.MONGODB_URI, {
