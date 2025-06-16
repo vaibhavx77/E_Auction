@@ -6,6 +6,8 @@ import Bid from "../models/bid.js";
 // Create Auction (with optional lots)
 export const createAuction = async (req, res) => {
   try {
+    console.log('Auction payload:', req.body); // <-- Add this line
+
     const {
       title,
       description,
@@ -76,6 +78,7 @@ export const createAuction = async (req, res) => {
 
     res.status(201).json({ message: "Auction created successfully", auction });
   } catch (err) {
+    console.error(err); // <-- Also add this for error details
     res.status(500).json({ message: "Auction creation failed", error: err.message });
   }
 };

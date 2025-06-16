@@ -1,9 +1,19 @@
 import Image from 'next/image';
+import { Auction } from '@/types/auction';
 
-export default function DashboardCardSection() {
+export default function DashboardCardSection({
+  auctions,
+  // loading,
+}: {
+  auctions: Auction[];
+  loading: boolean;
+}) {
+  const countByStatus = (status: string) =>
+    auctions.filter((a) => a.status === status).length;
+
   return (
     <>
-      {/* Dashboard header + bell */}
+      {/* Header */}
       <div className="flex justify-between items-start mb-6">
         <div>
           <h1 className="text-2xl font-bold mb-1 text-body">Dashboard</h1>
@@ -25,7 +35,7 @@ export default function DashboardCardSection() {
             <Image width={5} height={5} src="/icons/arrow_right.svg" alt="Chevron" className="w-4 h-4" />
           </div>
           <div className="flex justify-between items-end mt-4">
-            <span className="text-4xl font-semibold">3</span>
+            <span className="text-4xl font-semibold">{countByStatus('Active')}</span>
             <span className="text-status-live text-sm font-semibold">Live</span>
           </div>
         </div>
@@ -35,7 +45,7 @@ export default function DashboardCardSection() {
             <Image width={5} height={5} src="/icons/block_code.svg" alt="Total Auctions" className="w-4 h-4" />
             Total Auctions
           </div>
-          <div className="text-4xl font-semibold mt-4">6</div>
+          <div className="text-4xl font-semibold mt-4">{auctions.length}</div>
         </div>
 
         <div className="bg-white rounded-lg border border-border p-4 flex flex-col justify-between h-32">
@@ -43,7 +53,7 @@ export default function DashboardCardSection() {
             <Image width={5} height={5} src="/icons/calendar_clock.svg" alt="Schedule Auction" className="w-4 h-4" />
             Schedule Auction
           </div>
-          <div className="text-4xl font-semibold mt-4">2</div>
+          <div className="text-4xl font-semibold mt-4">{countByStatus('Scheduled')}</div>
         </div>
 
         <div className="bg-white rounded-lg border border-border p-4 flex flex-col justify-between h-32">
@@ -51,7 +61,7 @@ export default function DashboardCardSection() {
             <Image width={5} height={5} src="/icons/group.svg" alt="Total Suppliers" className="w-4 h-4" />
             Total Suppliers
           </div>
-          <div className="text-4xl font-semibold mt-4">24</div>
+          <div className="text-4xl font-semibold mt-4">–</div>
         </div>
       </div>
     </>
