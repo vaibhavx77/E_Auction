@@ -27,7 +27,7 @@ function generateCsv(
   countries: Country[],
   dutyMatrix: { [product: string]: { [country: string]: { rate: string; id?: string } } }
 ) {
-  const header = ['Product', 'HS Code', ...countries.map(c => c.name)];
+  const header = ["", ...countries.map(c => c.name)];
   const rows: string[][] = [];
 
   for (const product of products) {
