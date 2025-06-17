@@ -9,7 +9,7 @@
 
 // export default mongoose.model("DutyTable", dutyTableSchema);
 
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const importDutySchema = new mongoose.Schema({
   product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
@@ -19,4 +19,5 @@ const importDutySchema = new mongoose.Schema({
 
 importDutySchema.index({ product: 1, country: 1 }, { unique: true });
 
-module.exports = mongoose.model('ImportDuty', importDutySchema);
+export default mongoose.model('ImportDuty', importDutySchema);
+

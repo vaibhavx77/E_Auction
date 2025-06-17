@@ -1,8 +1,10 @@
 // models/Country.js
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
+
 
 const countrySchema = new mongoose.Schema({
   name: { type: String, required: true, unique: true },
 }, { timestamps: true });
 
-module.exports = mongoose.model('Country', countrySchema);
+export default mongoose.model('Country', countrySchema);
+

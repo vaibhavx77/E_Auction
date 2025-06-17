@@ -13,6 +13,7 @@ import Auction from "./models/auction.js";
 import http from "http";
 import { Server as SocketIOServer } from "socket.io";
 import auctionQARoutes from "./routes/auctionQA.js";
+import dutyRoutes from "./routes/dutyTable.js";
 
 dotenv.config();
 
@@ -41,6 +42,8 @@ app.use("/api/auction", auctionRoutes);
 app.use("/api/bid", bidRoutes);
 app.use("/api/invitation", invitationRoutes);
 app.use("/api/auction-qa", auctionQARoutes);
+app.use("/api/import-duty", dutyRoutes);
+
 
 // TODO: Import and use your route modules here
 // Example: app.use("/api/users", userRoutes);
