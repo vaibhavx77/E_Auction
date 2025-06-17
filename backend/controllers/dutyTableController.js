@@ -68,10 +68,11 @@ export const getProductsAndCountries = async (req, res) => {
 export const addDutyRate = async (req, res) => {
   try {
     const { product, country, dutyRate } = req.body;
-    console.log(country, product, dutyRate);
+    console.log(country, product, dutyRate, typeof(country));
 
-    const products = await Product.findOne({id: product});
-    const nation = await Country.findOne({id: country});
+    const products = await Product.findOne({_id: product});
+    const nation = await Country.findOne({_id: country});
+    console.log(products, nation);
 
 
     if (!products || !nation) {
@@ -86,7 +87,7 @@ export const addDutyRate = async (req, res) => {
       await duty.save();
       return res.status(200).json({ message: "Duty rate updated", duty });
     } else {
-      duty = new DutyTable({ productCategory, country, decimalDutyRate });
+      duty = new DutyTable({ product, country, dutyRate: decimalDutyRate });
       await duty.save();
       return res.status(201).json({ message: "Duty rate added", duty });
     }
@@ -99,7 +100,7 @@ export const addDutyRate = async (req, res) => {
 export const getDutyRates = async (req, res) => {
   try {
     const rates = await DutyTable.find()
-      .populate('productCategory', 'name')
+      .populate('product', 'name')
       .populate('country', 'name code');
 
  const formattedRates = rates.map((rate) => ({
