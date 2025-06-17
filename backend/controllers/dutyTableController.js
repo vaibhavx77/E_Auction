@@ -1,7 +1,8 @@
 import mongoose from "mongoose";
 import DutyTable from "../models/dutyTable.js";
-import Product from "../models/Product.js";
-import Country from "../models/Country.js";
+import Product from "../models/product.js";
+import Country from "../models/country.js";
+
 
 export const addProduct = async (req, res) => {
   try {
@@ -46,17 +47,19 @@ export const getAllCountries = async (req, res) => {
 
 export const addDutyRate = async (req, res) => {
   try {
-    const { productCategory, country, dutyRate } = req.body;
+    const { product, country, dutyRate } = req.body;
+    console.log(country, product, dutyRate);
 
-    const product = await Product.findById(productCategory);
-    const nation = await Country.findById(country);
+    const products = await Product.findOne({id: product});
+    const nation = await Country.findOne({id: country});
 
-    if (!product || !nation) {
+
+    if (!products || !nation) {
       return res.status(400).json({ message: "Invalid product or country ID" });
     }
     const decimalDutyRate = dutyRate !== null ? mongoose.Types.Decimal128.fromString(dutyRate.toString()) : null;
 
-    let duty = await DutyTable.findOne({ productCategory, country });
+    let duty = await DutyTable.findOne({ product, country });
 
     if (duty) {
       duty.dutyRate = decimalDutyRate;
@@ -81,7 +84,7 @@ export const getDutyRates = async (req, res) => {
 
  const formattedRates = rates.map((rate) => ({
       _id: rate._id,
-      product: rate.productCategory.name,
+      product: rate.product.name,
       country: rate.country.name,
       code: rate.country.code,
       dutyRate: rate.dutyRate ? parseFloat(rate.dutyRate.toString()) : null,
