@@ -23,11 +23,11 @@ import CurrencyRate from "../models/currencyRate.js";
 
 export const addCurrencyRate = async (req, res) => {
   try {
-    const { from, to, rate } = req.body;
-
+    const { currency, code, rate } = req.body;
+console.log(req.body, "bbbbbbbbbbbb")
     const decimalRate = mongoose.Types.Decimal128.fromString(rate.toString());
 
-    let currencyRate = await CurrencyRate.findOne({ from, to });
+    let currencyRate = await CurrencyRate.findOne({ code});
 
     if (currencyRate) {
       currencyRate.rate = decimalRate;
@@ -35,7 +35,7 @@ export const addCurrencyRate = async (req, res) => {
       await currencyRate.save();
       return res.status(200).json({ message: "Currency rate updated", currencyRate });
     } else {
-      currencyRate = new CurrencyRate({ from, to, rate: decimalRate });
+      currencyRate = new CurrencyRate({ currency, code, rate: decimalRate });
       await currencyRate.save();
       return res.status(201).json({ message: "Currency rate added", currencyRate });
     }
@@ -46,20 +46,47 @@ export const addCurrencyRate = async (req, res) => {
 };
 
 // Get All Currency Rates (with parsed decimals)
-export const getCurrencyRates = async (req, res) => {
+export const getAllCurrencyRates = async (req, res) => {
   try {
-    const rates = await CurrencyRate.find();
+    const currencyRates = await CurrencyRate.find();
 
-    const formattedRates = rates.map(rate => ({
+    // Convert Decimal128 to number for each rate
+    const formattedRates = currencyRates.map(rate => ({
       _id: rate._id,
-      from: rate.from,
-      to: rate.to,
+      currency: rate.currency,
+      code: rate.code,
       rate: parseFloat(rate.rate.toString()),
-      date: rate.date
+      createdAt: rate.createdAt,
+      updatedAt: rate.updatedAt
     }));
 
-    res.json(formattedRates);
+    res.status(200).json(formattedRates);
   } catch (err) {
     res.status(500).json({ message: "Failed to fetch currency rates", error: err.message });
+  }
+};
+
+export const getCurrencyRateByCode = async (req, res) => {
+  try {
+    const { code } = req.params;
+
+    const currencyRate = await CurrencyRate.findOne({ code: code.toUpperCase() });
+
+    if (!currencyRate) {
+      return res.status(404).json({ message: `Currency rate for code '${code}' not found` });
+    }
+
+    const formattedRate = {
+      _id: currencyRate._id,
+      currency: currencyRate.currency,
+      code: currencyRate.code,
+      rate: parseFloat(currencyRate.rate.toString()),
+      createdAt: currencyRate.createdAt,
+      updatedAt: currencyRate.updatedAt,
+    };
+
+    res.status(200).json(formattedRate);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch currency rate", error: err.message });
   }
 };

@@ -1,10 +1,13 @@
 import express from "express";
-import { addCurrencyRate, getCurrencyRates } from "../controllers/currencyRateController.js";
+import { addCurrencyRate, getAllCurrencyRates, getCurrencyRateByCode } from "../controllers/currencyRateController.js";
 import { authenticate, authorizeRoles } from "../middlewares/auth.js";
 
 const router = express.Router();
+router.post("/", addCurrencyRate);
 
-router.post("/", authenticate, authorizeRoles("Admin", "Manager", "Viewer"), addCurrencyRate);
-router.get("/", authenticate, getCurrencyRates);
+// router.post("/", authorizeRoles("Admin", "Manager", "Viewer"), addCurrencyRate);
+router.get("/", getAllCurrencyRates);
+router.get("/:code", getCurrencyRateByCode);
+
 
 export default router;

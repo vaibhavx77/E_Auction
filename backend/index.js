@@ -8,6 +8,7 @@ import userRoutes from "./routes/user.js";
 import auctionRoutes from "./routes/auction.js";
 import bidRoutes from "./routes/bid.js";
 import invitationRoutes from "./routes/invitation.js";
+import currencyRate from "./routes/currencyRate.js";
 import cron from "node-cron";
 import Auction from "./models/auction.js";
 import http from "http";
@@ -43,6 +44,7 @@ app.use("/api/bid", bidRoutes);
 app.use("/api/invitation", invitationRoutes);
 app.use("/api/auction-qa", auctionQARoutes);
 app.use("/api/import-duty", dutyRoutes);
+app.use("/api/currency-rate", currencyRate);
 
 
 // TODO: Import and use your route modules here
