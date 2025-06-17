@@ -6,7 +6,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import Image from "next/image";
 import { CurrencyRateModal } from "@/components/modal/CurrencyRateModal";
 import { Button } from "@/components/ui/button";
-
+const API_BASE = "http://localhost:5000";
 // Add more currencies if needed!
 const currencyNames: Record<string, string> = {
   USD: "US Dollar",
@@ -28,7 +28,7 @@ export default function WeeklyCurrencyRatesPage() {
 
   // Fetch currencies from backend
   useEffect(() => {
-    fetch("/api/currency-rate")
+    fetch(`${API_BASE}/api/currency-rate`)
       .then((res) => res.json())
       .then((data) => setCurrencies(data));
   }, []);
@@ -59,14 +59,14 @@ export default function WeeklyCurrencyRatesPage() {
 
   // Save handler (add or edit)
   const handleSave = async (data: { from: string; to: string; rate: number }) => {
-    await fetch("/api/currency-rate", {
+    await fetch(`${API_BASE}/api/currency-rate`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
     setModalOpen(false);
     // Re-fetch updated currency rates
-    fetch("/api/currency-rate")
+    fetch(`${API_BASE}/api/currency-rate`)
       .then((res) => res.json())
       .then((data) => setCurrencies(data));
   };
