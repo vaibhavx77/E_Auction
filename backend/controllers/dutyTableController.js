@@ -43,6 +43,26 @@ export const getAllCountries = async (req, res) => {
   }
 };
 
+export const getProductsAndCountries = async (req, res) => {
+  try {
+    const [products, countries] = await Promise.all([
+      Product.find(),
+      Country.find()
+    ]);
+
+    res.json({
+      products,
+      countries
+    });
+  } catch (err) {
+    res.status(500).json({
+      message: "Failed to fetch products and countries",
+      error: err.message
+    });
+  }
+};
+
+
 
 export const addDutyRate = async (req, res) => {
   try {
