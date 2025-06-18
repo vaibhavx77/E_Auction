@@ -17,7 +17,7 @@ export default function DashboardCardSection({
       <div className="flex justify-between items-start mb-6">
         <div>
           <h1 className="text-2xl font-bold mb-1 text-body">Dashboard</h1>
-          <p className="text-sm text-muted">Create, track, and review auctions</p>
+          <p className="text-sm ">Create, track, and review auctions</p>
         </div>
         <button className="w-10 h-10 bg-background rounded-full flex items-center justify-center">
           <Image width={5} height={5} src="/icons/bell.svg" alt="Notifications" className="w-5 h-5" />

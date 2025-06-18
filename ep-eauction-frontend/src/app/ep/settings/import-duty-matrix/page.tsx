@@ -209,7 +209,7 @@ export default function ImportDutyMatrixPage() {
             <Image width={5} height={5} src="/icons/arrow_left.svg" alt="Back" className="w-4 h-4" />
             <h1 className="text-lg font-semibold text-body">Import Duty Matrix</h1>
           </div>
-          <p className="text-sm text-muted">
+          <p className="text-sm ">
             Configure import duty percentages by country and product type
           </p>
         </div>
@@ -314,14 +314,14 @@ export default function ImportDutyMatrixPage() {
               <th
                 className="min-w-[300px] px-4 py-3 sticky left-0 bg-background-subtle z-20 border-r border-border whitespace-nowrap shadow-md"
               >
-                Product <span className="text-xs text-muted">(HS Code)</span>
+                Product <span className="text-xs ">(HS Code)</span>
               </th>
               {countryKeys.map((country) => (
                 <th
                   key={country}
                   className="pl-2 pr-12 py-1 border-l border-border bg-background-subtle whitespace-nowrap"
                 >
-                  {country} <span className="text-xs text-muted">Duty %</span>
+                  {country} <span className="text-xs ">Duty %</span>
                 </th>
               ))}
             </tr>
@@ -344,7 +344,7 @@ export default function ImportDutyMatrixPage() {
                     <td className="px-4 py-4 sticky left-0 bg-white z-20 border-r border-border shadow-md">
                       <div className="flex flex-col">
                         <span>{prod.name}</span>
-                        {prod.hsCode && <span className="text-xs text-muted">{prod.hsCode}</span>}
+                        {prod.hsCode && <span className="text-xs ">{prod.hsCode}</span>}
                       </div>
                     </td>
                     {countryKeys.map((country) => {

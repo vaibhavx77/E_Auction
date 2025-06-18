@@ -58,7 +58,7 @@ export default function AuctionTable({
   }, []);
 
   if (loading) {
-    return <div className="p-4 text-sm text-muted">Loading auctions...</div>;
+    return <div className="p-4 text-sm ">Loading auctions...</div>;
   }
 
   return (
