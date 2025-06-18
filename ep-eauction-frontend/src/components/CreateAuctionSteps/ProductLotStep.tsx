@@ -1,9 +1,10 @@
 type ProductLotStepProps = {
   data: any;
   onChange: (data: any) => void;
+  showErrors?: boolean;
 };
 
-export default function ProductLotStep({ data, onChange }: ProductLotStepProps) {
+export default function ProductLotStep({ data, onChange, showErrors }: ProductLotStepProps) {
   return (
     <div>
       <div className="flex justify-between items-start mb-4">
@@ -29,6 +30,7 @@ export default function ProductLotStep({ data, onChange }: ProductLotStepProps) 
               type="text"
               placeholder="LOT ID / Product ID"
               className="w-full bg-white border border-[#DDE1EB] px-3 py-2 rounded text-sm"
+              // If this should be required, add similar error logic as below
             />
           </div>
           <div>
@@ -37,6 +39,7 @@ export default function ProductLotStep({ data, onChange }: ProductLotStepProps) 
               type="text"
               placeholder="HS Code"
               className="w-full bg-white border border-[#DDE1EB] px-3 py-2 rounded text-sm"
+              // If this should be required, add similar error logic as below
             />
           </div>
           <div>
@@ -44,10 +47,13 @@ export default function ProductLotStep({ data, onChange }: ProductLotStepProps) 
             <input
               type="text"
               placeholder="Product Name"
-              className="w-full bg-white border border-[#DDE1EB] px-3 py-2 rounded text-sm"
+              className={`w-full bg-white border px-3 py-2 rounded text-sm ${showErrors && !data.productName ? 'border-red-500' : 'border-[#DDE1EB]'}`}
               value={data.productName || ''}
               onChange={e => onChange({ productName: e.target.value })}
             />
+            {showErrors && !data.productName && (
+              <span className="text-xs text-red-500">Required</span>
+            )}
           </div>
           <div>
             <label className="block text-sm mb-1">Material Type</label>
@@ -55,6 +61,7 @@ export default function ProductLotStep({ data, onChange }: ProductLotStepProps) 
               type="text"
               placeholder="Material Type"
               className="w-full bg-white border border-[#DDE1EB] px-3 py-2 rounded text-sm"
+              // If this should be required, add similar error logic as below
             />
           </div>
           <div className="col-span-2">
@@ -63,6 +70,7 @@ export default function ProductLotStep({ data, onChange }: ProductLotStepProps) 
               type="text"
               placeholder="Previous landed cost"
               className="w-full bg-white border border-[#DDE1EB] px-3 py-2 rounded text-sm"
+              // If this should be required, add similar error logic as below
             />
           </div>
         </div>
@@ -74,16 +82,19 @@ export default function ProductLotStep({ data, onChange }: ProductLotStepProps) 
               type="text"
               placeholder="L"
               className="w-full bg-white border border-[#DDE1EB] px-3 py-2 rounded text-sm"
+              // If this should be required, add similar error logic as below
             />
             <input
               type="text"
               placeholder="W"
               className="w-full bg-white border border-[#DDE1EB] px-3 py-2 rounded text-sm"
+              // If this should be required, add similar error logic as below
             />
             <input
               type="text"
               placeholder="H"
               className="w-full bg-white border border-[#DDE1EB] px-3 py-2 rounded text-sm"
+              // If this should be required, add similar error logic as below
             />
           </div>
         </div>
@@ -93,10 +104,13 @@ export default function ProductLotStep({ data, onChange }: ProductLotStepProps) 
           <input
             type="number"
             placeholder="Number of LOTs"
-            className="w-full border border-[#DDE1EB] px-3 py-2 rounded text-sm"
+            className={`w-full border px-3 py-2 rounded text-sm ${showErrors && !data.lotCount ? 'border-red-500' : 'border-[#DDE1EB]'}`}
             value={data.lotCount || ''}
             onChange={e => onChange({ lotCount: e.target.value })}
           />
+          {showErrors && !data.lotCount && (
+            <span className="text-xs text-red-500">Required</span>
+          )}
         </div>
       </div>
     </div>
