@@ -1,10 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import axios from 'axios';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 
 export default function OtpModal({
   email,
@@ -20,70 +16,106 @@ export default function OtpModal({
   const [otp, setOtp] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [resendTimer, setResendTimer] = useState(30); // countdown in seconds
+  const [resendTimer, setResendTimer] = useState(30);
 
-  // Countdown effect
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [open]);
+
   useEffect(() => {
     let timer: any;
-    if (resendTimer > 0) {
+    if (open && resendTimer > 0) {
       timer = setTimeout(() => setResendTimer(resendTimer - 1), 1000);
     }
     return () => clearTimeout(timer);
-  }, [resendTimer]);
+  }, [resendTimer, open]);
 
   const handleVerify = async () => {
     setLoading(true);
+    setError('');
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/verify-otp', { email, otp });
-      onVerified(res.data.token, res.data.role);
+      const res = await fetch('http://localhost:5000/api/auth/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, otp }),
+      });
+      if (!res.ok) throw await res.json();
+      const data = await res.json();
+      onVerified(data.token, data.role);
       onClose();
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Verification failed');
+      setError(err?.message || 'Verification failed');
     } finally {
       setLoading(false);
     }
   };
 
   const handleResendOtp = async () => {
+    setError('');
     try {
-      await axios.post('http://localhost:5000/api/auth/resend-otp', { email });
-      setResendTimer(30); // reset timer after resend
-      setError('');
+      await fetch('http://localhost:5000/api/auth/resend-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      setResendTimer(30);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to resend OTP');
+      setError('Failed to resend OTP');
     }
   };
 
-  return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Enter OTP</DialogTitle>
-        </DialogHeader>
+  if (!open) return null;
 
-        <Input
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm transition-all">
+      <div className="relative bg-white w-full max-w-sm rounded-2xl shadow-2xl p-10 flex flex-col items-center gap-y-5">
+        {/* Close button */}
+        <button
+          onClick={onClose}
+          className="absolute top-5 right-5 text-2xl text-gray-400 hover:text-gray-700"
+          aria-label="Close"
+        >
+          ×
+        </button>
+        <h2 className="text-center text-lg font-semibold mb-4">Enter OTP</h2>
+        <input
           type="text"
           placeholder="Enter 6-digit OTP"
           value={otp}
           onChange={(e) => setOtp(e.target.value)}
           maxLength={6}
+          className="w-full border border-[#DDE1EB] rounded-lg px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
+          autoFocus
         />
-        {error && <p className="text-red-500 text-sm">{error}</p>}
-
-        <Button onClick={handleVerify} disabled={loading} className="mt-3 w-full">
+        {error && <p className="text-red-600 text-sm mb-2">{error}</p>}
+        <button
+          onClick={handleVerify}
+          disabled={loading || otp.length !== 6}
+          className="w-full bg-[#007AFF] text-white text-base font-medium py-3 rounded-lg hover:opacity-90 transition mb-1 disabled:opacity-50"
+        >
           {loading ? 'Verifying...' : 'Verify OTP'}
-        </Button>
-
-        <div className="mt-4 text-sm text-center">
+        </button>
+        <div className="mt-2 text-sm text-center w-full">
           {resendTimer > 0 ? (
-            <p className="text-gray-500">Resend OTP in {resendTimer}s</p>
+            <span className="text-gray-500">Resend OTP in {resendTimer}s</span>
           ) : (
-            <Button variant="link" onClick={handleResendOtp}>
+            <button
+              className="text-blue-600 underline hover:no-underline hover:text-blue-800 transition"
+              onClick={handleResendOtp}
+              disabled={loading}
+            >
               Resend OTP
-            </Button>
+            </button>
           )}
         </div>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </div>
   );
 }

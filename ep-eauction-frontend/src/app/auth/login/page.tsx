@@ -11,24 +11,29 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [showOtp, setShowOtp] = useState(false);
 
-const [showOtp, setShowOtp] = useState(false);
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(''); // Clear previous errors
+    try {
+      const res = await axios.post('http://localhost:5000/api/auth/login', { email, password });
+      setShowOtp(true);
+    } catch (err: any) {
+      // Safely extract error message
+      const message = err.response?.data?.message;
+      if (message && message.toLowerCase().includes('invalid')) {
+        setError('Invalid email or password.');
+      } else {
+        setError(message || 'Login failed. Please try again.');
+      }
+    }
+  };
 
-const handleLogin = async (e: React.FormEvent) => {
-  e.preventDefault();
-  try {
-    const res = await axios.post('http://localhost:5000/api/auth/login', { email, password });
-    setShowOtp(true); // 👈 show OTP modal
-  } catch (err: any) {
-    alert(err.response?.data?.message || 'Login failed');
-  }
-};
-
-const handleOtpVerified = (token: string, role: string) => {
-  localStorage.setItem('token', token);
-  router.push(role === 'supplier' ? '/supplier/dashboard' : '/ep/dashboard');
-};
-
+  const handleOtpVerified = (token: string, role: string) => {
+    localStorage.setItem('token', token);
+    router.push(role === 'supplier' ? '/supplier/dashboard' : '/ep/dashboard');
+  };
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-[#F9FAFB] px-4">
@@ -40,6 +45,7 @@ const handleOtpVerified = (token: string, role: string) => {
           Login into your account
         </h2>
 
+        {/* Error message shown here */}
         {error && (
           <p className="text-red-600 text-sm text-center mb-4">{error}</p>
         )}
@@ -83,15 +89,25 @@ const handleOtpVerified = (token: string, role: string) => {
         >
           Login
         </button>
+
+        {/* Register link */}
+        <div className="mt-6 text-center">
+          <span className="text-sm text-gray-600">New user?{' '}</span>
+          <button
+            type="button"
+            onClick={() => router.push('/auth/ep-register')}
+            className="text-sm text-blue-600 underline hover:no-underline hover:text-blue-800 transition"
+          >
+            Register here
+          </button>
+        </div>
       </form>
       <OtpModal
-  email={email}
-  open={showOtp}
-  onClose={() => setShowOtp(false)}
-  onVerified={handleOtpVerified}
-/>
-
+        email={email}
+        open={showOtp}
+        onClose={() => setShowOtp(false)}
+        onVerified={handleOtpVerified}
+      />
     </main>
   );
 }
-
