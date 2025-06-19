@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import OtpModal from '@/components/OtpModal';
 
 export default function LoginPage() {
@@ -17,17 +17,18 @@ export default function LoginPage() {
     e.preventDefault();
     setError(''); // Clear previous errors
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/login', { email, password });
-      setShowOtp(true);
-    } catch (err: any) {
-      // Safely extract error message
-      const message = err.response?.data?.message;
-      if (message && message.toLowerCase().includes('invalid')) {
-        setError('Invalid email or password.');
-      } else {
-        setError(message || 'Login failed. Please try again.');
-      }
-    }
+await axios.post('http://localhost:5000/api/auth/login', { email, password });
+setShowOtp(true);
+
+} catch (err) {
+  const error = err as AxiosError<{ message?: string }>;
+  const message = error.response?.data?.message;
+  if (message && message.toLowerCase().includes('invalid')) {
+    setError('Invalid email or password.');
+  } else {
+    setError(message || 'Login failed. Please try again.');
+  }
+}
   };
 
   const handleOtpVerified = (token: string, role: string) => {

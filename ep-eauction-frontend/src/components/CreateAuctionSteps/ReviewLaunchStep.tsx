@@ -39,17 +39,36 @@ function ConfirmLaunchModal({
   );
 }
 
-// --- Main Review & Launch Step ---
-type ReviewLaunchStepProps = {
-  data: any;
-  onSubmit: () => void; // Function to actually launch auction
-  onSaveDraft?: () => void; // Optional: handle save draft
+// --- Review step data type ---
+type ReviewAuctionData = {
+  title?: string;
+  sapCode?: string;
+  type?: string;
+  lots?: {
+    lotId?: string;
+    hsCode?: string;
+    productName?: string;
+    material?: string;
+    dimensions?: string;
+    prevCost?: string | number;
+  }[];
+  startTime?: string;
+  endTime?: string;
+  autoExtension?: boolean;
+  allowPause?: boolean;
+  suppliers?: string[];
+  emailPreview?: string;
 };
 
-export default function ReviewLaunchStep({ data, onSubmit, onSaveDraft }: ReviewLaunchStepProps) {
+// --- Main Review & Launch Step ---
+type ReviewLaunchStepProps = {
+  data: ReviewAuctionData;
+  onSubmit: () => void;
+};
+
+export default function ReviewLaunchStep({ data, onSubmit }: ReviewLaunchStepProps) {
   const [modalOpen, setModalOpen] = useState(false);
 
-  // You can design this summary UI as you like. Here is a simple structure:
   return (
     <div>
       <h2 className="text-lg font-semibold mb-2">Review &amp; Launch</h2>
@@ -72,7 +91,7 @@ export default function ReviewLaunchStep({ data, onSubmit, onSaveDraft }: Review
         </div>
       </div>
 
-      {/* --- LOT & Product Details (Example Table) --- */}
+      {/* --- LOT & Product Details --- */}
       <div className="bg-[#FAFAFC] border border-[#E1E6F0] rounded mb-5 p-4">
         <h3 className="font-semibold mb-3 text-[15px]">LOT & Product Details</h3>
         <div className="overflow-x-auto">
@@ -87,12 +106,15 @@ export default function ReviewLaunchStep({ data, onSubmit, onSaveDraft }: Review
               </tr>
             </thead>
             <tbody>
-              {(data.lots || [{ lotId: '-', hsCode: '-', productName: '-', material: '-', prevCost: '-' }]).map((lot: any, i: number) => (
+              {(data.lots && data.lots.length > 0 ? data.lots : [{ lotId: '-', hsCode: '-', productName: '-', material: '-', prevCost: '-' }]).map((lot, i) => (
                 <tr key={i}>
                   <td className="p-2 border">{lot.lotId || '-'}</td>
                   <td className="p-2 border">{lot.hsCode || '-'}</td>
                   <td className="p-2 border">{lot.productName || '-'}</td>
-                  <td className="p-2 border">{lot.material || '-'}{lot.dimensions ? `, ${lot.dimensions}` : ''}</td>
+                  <td className="p-2 border">
+                    {lot.material || '-'}
+                    {lot.dimensions ? `, ${lot.dimensions}` : ''}
+                  </td>
                   <td className="p-2 border">{lot.prevCost || '-'}</td>
                 </tr>
               ))}
@@ -136,7 +158,7 @@ export default function ReviewLaunchStep({ data, onSubmit, onSaveDraft }: Review
       <div className="bg-[#FAFAFC] border border-[#E1E6F0] rounded mb-5 p-4">
         <h3 className="font-semibold mb-3 text-[15px]">Invited suppliers ({(data.suppliers || []).length})</h3>
         <div className="flex flex-wrap gap-2 mb-2">
-          {(data.suppliers || []).map((email: string, idx: number) => (
+          {(data.suppliers || []).map((email, idx) => (
             <span
               key={idx}
               className="flex items-center gap-1 bg-[#F3F6FB] border border-[#E1E6F0] px-3 py-1 rounded-full text-sm text-[#222] shadow-sm"
@@ -160,15 +182,8 @@ export default function ReviewLaunchStep({ data, onSubmit, onSaveDraft }: Review
         />
       </div>
 
-      {/* --- Buttons ---
-      <div className="flex justify-between gap-2 mt-6">
-        <button
-          className="border border-[#DDE1EB] px-4 py-2 rounded text-sm bg-white hover:bg-gray-50"
-          type="button"
-          onClick={onSaveDraft}
-        >
-          Save Draft
-        </button>
+      {/* --- Buttons --- */}
+      <div className="flex justify-end gap-2 mt-6">
         <button
           className="px-4 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"
           type="button"
@@ -176,7 +191,7 @@ export default function ReviewLaunchStep({ data, onSubmit, onSaveDraft }: Review
         >
           Launch Auction
         </button>
-      </div> */}
+      </div>
 
       {/* --- Confirmation Modal --- */}
       <ConfirmLaunchModal

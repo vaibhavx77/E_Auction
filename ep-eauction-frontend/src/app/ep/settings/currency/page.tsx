@@ -9,19 +9,28 @@ import { Button } from "@/components/ui/button";
 
 const API_BASE = "http://localhost:5000";
 
+// ---- Currency type definition ----
+type Currency = {
+  _id?: string;
+  currency: string;
+  code: string;
+  rate: number;
+  updatedAt?: string;
+};
+
 export default function WeeklyCurrencyRatesPage() {
   const router = useRouter();
-  const [currencies, setCurrencies] = useState<any[]>([]);
+  const [currencies, setCurrencies] = useState<Currency[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"add" | "edit">("add");
-  const [modalData, setModalData] = useState<any>({});
+  const [modalData, setModalData] = useState<Partial<Currency>>({});
 
   // Fetch currencies from backend
   const fetchCurrencies = () => {
     fetch(`${API_BASE}/api/currency-rate`)
       .then((res) => res.json())
-      .then((data) => setCurrencies(data));
+      .then((data: Currency[]) => setCurrencies(data));
   };
 
   useEffect(() => {
@@ -40,7 +49,7 @@ export default function WeeklyCurrencyRatesPage() {
     setModalOpen(true);
   };
 
-  const handleEdit = (row: any) => {
+  const handleEdit = (row: Currency) => {
     setModalMode("edit");
     setModalData({
       currency: row.currency,
@@ -122,18 +131,18 @@ export default function WeeklyCurrencyRatesPage() {
                   <td className="px-4 py-4 border-r border-border">{row.currency}</td>
                   <td className="px-4 py-4 border-r border-border">{row.code}</td>
                   <td className="px-4 py-4 border-r border-border">
-          <div className="flex items-center justify-between">
-            <span>{row.rate}</span>
-            <Image
-              width={16}
-              height={16}
-              src="/icons/edit_pen.svg"
-              alt="Edit"
-              className="w-4 h-4 cursor-pointer opacity-60 hover:opacity-100 ml-2"
-              onClick={() => handleEdit(row)}
-            />
-          </div>
-        </td>
+                    <div className="flex items-center justify-between">
+                      <span>{row.rate}</span>
+                      <Image
+                        width={16}
+                        height={16}
+                        src="/icons/edit_pen.svg"
+                        alt="Edit"
+                        className="w-4 h-4 cursor-pointer opacity-60 hover:opacity-100 ml-2"
+                        onClick={() => handleEdit(row)}
+                      />
+                    </div>
+                  </td>
                   <td className="px-4 py-4 border-r border-border">
                     {row.updatedAt ? new Date(row.updatedAt).toLocaleDateString() : ""}
                   </td>

@@ -1,20 +1,30 @@
 import { useRef, useState } from "react";
-import { X } from "lucide-react"; // Or use any icon you like
+import { X } from "lucide-react";
+
+// --- Data Type for the Step ---
+type SupplierInvitationData = {
+  suppliers: string[];
+  previewEmail?: string;
+};
 
 type SupplierInvitationStepProps = {
-  data: any;
-  onChange: (data: any) => void;
+  data: SupplierInvitationData;
+  onChange: (data: Partial<SupplierInvitationData>) => void;
   showErrors?: boolean;
 };
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export default function SupplierInvitationStep({ data, onChange, showErrors }: SupplierInvitationStepProps) {
+export default function SupplierInvitationStep({
+  data,
+  onChange,
+  showErrors,
+}: SupplierInvitationStepProps) {
   const [input, setInput] = useState("");
   const [error, setError] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Existing emails (array in data)
+  // Existing emails
   const suppliers: string[] = data.suppliers || [];
 
   // Add email
@@ -50,7 +60,9 @@ export default function SupplierInvitationStep({ data, onChange, showErrors }: S
   return (
     <div>
       <h2 className="text-lg font-semibold mb-2">Select and invite suppliers</h2>
-      <p className="text-sm text-[#5E5E65] mb-4">Only invited suppliers will receive access to this auction</p>
+      <p className="text-sm text-[#5E5E65] mb-4">
+        Only invited suppliers will receive access to this auction
+      </p>
       <div className="grid grid-cols-2 gap-6 mb-4">
         <div>
           <label className="block text-sm mb-1">Supplier Email Addresses</label>
@@ -65,19 +77,23 @@ export default function SupplierInvitationStep({ data, onChange, showErrors }: S
             }}
             onKeyDown={handleKeyDown}
             className={`w-full border px-3 py-2 rounded text-sm ${
-              showErrors && suppliers.length === 0 ? "border-red-500" : "border-[#DDE1EB]"
+              showErrors && suppliers.length === 0
+                ? "border-red-500"
+                : "border-[#DDE1EB]"
             }`}
           />
           {error && <span className="text-xs text-red-500">{error}</span>}
           {showErrors && suppliers.length === 0 && (
-            <span className="text-xs text-red-500 block mt-1">At least one email is required</span>
+            <span className="text-xs text-red-500 block mt-1">
+              At least one email is required
+            </span>
           )}
         </div>
         <div>
           <label className="block text-sm mb-1">Selection Dropdown (1 Selected)</label>
           <select className="w-full border border-[#DDE1EB] px-3 py-2 rounded text-sm" disabled>
             <option>Select from supplier list</option>
-            {/* Populate with supplier options if needed */}
+            {/* You can populate with options if needed */}
           </select>
         </div>
       </div>
@@ -88,7 +104,7 @@ export default function SupplierInvitationStep({ data, onChange, showErrors }: S
             key={email}
             className="flex items-center gap-1 bg-[#F3F6FB] border border-[#E1E6F0] px-3 py-1 rounded-full text-sm text-[#222] shadow-sm"
           >
-            <span className="">{email}</span>
+            <span>{email}</span>
             <button
               type="button"
               onClick={() => handleRemove(email)}

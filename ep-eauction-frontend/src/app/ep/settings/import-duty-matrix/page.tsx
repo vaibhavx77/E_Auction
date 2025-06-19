@@ -127,7 +127,7 @@ export default function ImportDutyMatrixPage() {
   const countryKeys = countries.map(c => c.name);
 
   // Find product/country by name for modal
-  const getProductByName = (name: string) => products.find(p => p.name === name);
+  // const getProductByName = (name: string) => products.find(p => p.name === name);
   const getCountryByName = (name: string) => countries.find(c => c.name === name);
 
   // Handlers for modal
@@ -146,7 +146,7 @@ export default function ImportDutyMatrixPage() {
   const handleCloseModal = () => setModal({ open: false });
 
   // Save or update duty
-  const handleSaveDuty = async (product: Product, country: Country, rate: number, dutyRowId?: string) => {
+  const handleSaveDuty = async (product: Product, country: Country, rate: number) => {
     try {
       await fetch(`${API_BASE}/api/import-duty/`, {
         method: "POST",
@@ -159,7 +159,7 @@ export default function ImportDutyMatrixPage() {
       });
       handleCloseModal();
       loadDuties();
-    } catch (err) {
+    } catch {
       alert('Failed to save duty rate');
     }
   };

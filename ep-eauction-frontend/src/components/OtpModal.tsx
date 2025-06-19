@@ -18,6 +18,11 @@ export default function OtpModal({
   const [error, setError] = useState('');
   const [resendTimer, setResendTimer] = useState(30);
 
+  function isErrorWithMessage(e: unknown): e is { message: string } {
+  return typeof e === 'object' && e !== null && 'message' in e && typeof (e as Record<string, unknown>).message === 'string';
+}
+
+
   useEffect(() => {
     if (open) {
       document.body.style.overflow = 'hidden';
@@ -30,7 +35,7 @@ export default function OtpModal({
   }, [open]);
 
   useEffect(() => {
-    let timer: any;
+    let timer: ReturnType<typeof setTimeout>;
     if (open && resendTimer > 0) {
       timer = setTimeout(() => setResendTimer(resendTimer - 1), 1000);
     }
@@ -50,9 +55,13 @@ export default function OtpModal({
       const data = await res.json();
       onVerified(data.token, data.role);
       onClose();
-    } catch (err: any) {
-      setError(err?.message || 'Verification failed');
-    } finally {
+    } catch (err) {
+  if (isErrorWithMessage(err)) {
+    setError(err.message);
+  } else {
+    setError('Verification failed');
+  }
+} finally {
       setLoading(false);
     }
   };
@@ -66,7 +75,7 @@ export default function OtpModal({
         body: JSON.stringify({ email }),
       });
       setResendTimer(30);
-    } catch (err: any) {
+    } catch {
       setError('Failed to resend OTP');
     }
   };
