@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 function validateEmail(email: string) {
   // Simple email regex
@@ -8,6 +9,7 @@ function validateEmail(email: string) {
 }
 
 export default function EpRegisterPage() {
+  const router = useRouter();
   const [form, setForm] = useState({
     name: '',
     email: '',
@@ -24,6 +26,7 @@ export default function EpRegisterPage() {
   });
 
   const [showPassword, setShowPassword] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const handleChange = (field: keyof typeof form, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -64,30 +67,49 @@ export default function EpRegisterPage() {
     e.preventDefault();
     if (!isFormValid) return;
 
+    // setLoading(true);
+    // const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/create-ep-member`, {
+    //   method: 'POST',
+    //   headers: { 'Content-Type': 'application/json' },
+    //   body: JSON.stringify({
+    //     name: form.name,
+    //     email: form.email,
+    //     password: form.password,
+    //   }),
+    // });
+    // setLoading(false);
+    // if (res.ok) {
+    //   setShowSuccessModal(true); 
+    //   setForm({ name: '', email: '', password: '', confirmPassword: '' });
+    //   setTouched({
+    //     name: false,
+    //     email: false,
+    //     password: false,
+    //     confirmPassword: false,
+    //   });
+    // } else {
+    //   const data = await res.json();
+    //   alert(data.message || 'Registration failed');
+    // }
     setLoading(true);
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/create-ep-member`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name: form.name,
-        email: form.email,
-        password: form.password,
-      }),
-    });
-    setLoading(false);
-    if (res.ok) {
-      alert('EP Member registered successfully!');
-      setForm({ name: '', email: '', password: '', confirmPassword: '' });
-      setTouched({
-        name: false,
-        email: false,
-        password: false,
-        confirmPassword: false,
-      });
-    } else {
-      const data = await res.json();
-      alert(data.message || 'Registration failed');
-    }
+setTimeout(() => {
+  setLoading(false);
+  setShowSuccessModal(true); // Show modal!
+  setForm({ name: '', email: '', password: '', confirmPassword: '' });
+  setTouched({
+    name: false,
+    email: false,
+    password: false,
+    confirmPassword: false,
+  });
+}, 1200); // 1.2 seconds
+
+  };
+
+  // Handle redirect after modal OK
+  const handleModalOk = () => {
+    setShowSuccessModal(false);
+    router.push('/auth/login');
   };
 
   return (
@@ -190,6 +212,24 @@ export default function EpRegisterPage() {
           {loading ? 'Registering...' : 'Register'}
         </button>
       </form>
+
+      {/* Success Modal */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg p-8 max-w-sm w-full text-center">
+            <h2 className="text-lg font-semibold mb-2">Registration Successful!</h2>
+            <p className="mb-4 text-sm text-gray-600">
+              Your account has been created.<br />You will now be redirected to the login page.
+            </p>
+            <button
+              onClick={handleModalOk}
+              className="mt-2 px-6 py-2 bg-blue-600 text-white rounded font-medium"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

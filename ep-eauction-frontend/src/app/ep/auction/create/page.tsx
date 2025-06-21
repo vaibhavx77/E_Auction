@@ -24,7 +24,6 @@ type AuctionData = {
   startTime?: string;
   endTime?: string;
   suppliers?: string[];
-  // Add more fields as needed!
 };
 
 const steps = [
@@ -36,14 +35,37 @@ const steps = [
 ];
 
 export default function CreateAuctionPage() {
-  const [step, setStep] = useState<number>(0);
+  // 1. Step state persisted to localStorage
+const [step, setStep] = useState<number>(0);
+
+// After mount, sync with localStorage
+useEffect(() => {
+  const savedStep = localStorage.getItem('auctionStep');
+  if (savedStep && !isNaN(Number(savedStep))) {
+    setStep(Number(savedStep));
+  }
+}, []);
+
   const [auctionData, setAuctionData] = useState<AuctionData>({});
   const [loading, setLoading] = useState<boolean>(false);
   const router = useRouter();
   const [showErrors, setShowErrors] = useState<boolean>(false);
   const [showLaunchModal, setShowLaunchModal] = useState<boolean>(false);
 
-  // Modal component, ideally should be its own file, but kept here for simplicity
+  // 2. Save step to localStorage on step change
+  useEffect(() => {
+    localStorage.setItem('auctionStep', step.toString());
+  }, [step]);
+
+  // 3. Save and load draft data
+  useEffect(() => {
+    const draft = localStorage.getItem('auctionDraft');
+    if (draft) {
+      setAuctionData(JSON.parse(draft));
+    }
+  }, []);
+
+  // ---- Modal (can be refactored out) ----
   function ConfirmLaunchModal({
     open,
     onClose,
@@ -80,6 +102,22 @@ export default function CreateAuctionPage() {
     );
   }
 
+  // ---- Navigation & Validation ----
+  const requiredFieldsPerStep: Record<number, Array<keyof AuctionData>> = {
+    0: ['title', 'type', 'sapCode', 'reservePrice', 'currency'],
+    1: ['productName', 'lotCount'],
+    2: ['startTime', 'endTime'],
+    3: ['suppliers'],
+  };
+
+  const isStepValid = () => {
+    const required = requiredFieldsPerStep[step] || [];
+    return required.every((field) => {
+      const value = auctionData[field];
+      return value !== undefined && value !== '' && !(Array.isArray(value) && value.length === 0);
+    });
+  };
+
   const goNext = () => {
     if (!isStepValid()) {
       setShowErrors(true);
@@ -93,36 +131,13 @@ export default function CreateAuctionPage() {
     setAuctionData((prev) => ({ ...prev, ...data }));
   };
 
-  const requiredFieldsPerStep: Record<number, Array<keyof AuctionData>> = {
-    0: ['title', 'type', 'sapCode', 'reservePrice', 'currency'],
-    1: ['productName', 'lotCount'], // Add more if needed from ProductLotStep
-    2: ['startTime', 'endTime'], // Add more if needed from AuctionSettingsStep
-    3: ['suppliers'],
-    // 4: [] (Review step doesn't need validation)
-  };
-
-  const isStepValid = () => {
-    const required = requiredFieldsPerStep[step] || [];
-    return required.every((field) => {
-      const value = auctionData[field];
-      return value !== undefined && value !== '' && !(Array.isArray(value) && value.length === 0);
-    });
-  };
-
-  // Save auctionData to localStorage
+  // Save auctionData to localStorage as draft
   const saveDraft = () => {
     localStorage.setItem('auctionDraft', JSON.stringify(auctionData));
     alert('Draft saved!');
   };
 
-  // Load auctionData from localStorage on mount
-  useEffect(() => {
-    const draft = localStorage.getItem('auctionDraft');
-    if (draft) {
-      setAuctionData(JSON.parse(draft));
-    }
-  }, []);
-
+  // ---- Step Content ----
   const renderStepContent = (step: number) => {
     switch (step) {
       case 0:
@@ -174,6 +189,7 @@ export default function CreateAuctionPage() {
     }
   };
 
+  // ---- Submission ----
   const handleSubmit = async () => {
     setLoading(true);
     if (
@@ -200,6 +216,8 @@ export default function CreateAuctionPage() {
       setLoading(false);
       if (res.ok) {
         alert('Auction created successfully!');
+        localStorage.removeItem('auctionStep');   // <-- RESET STEP
+        localStorage.removeItem('auctionDraft');  // <-- Optionally clear draft too
         router.push('/ep/dashboard');
       } else {
         const data = await res.json();
@@ -211,6 +229,12 @@ export default function CreateAuctionPage() {
     }
   };
 
+  // ---- Back Navigation: Reset step for a fresh start ----
+  const handleBack = () => {
+    localStorage.removeItem('auctionStep');
+    router.push('/ep/dashboard');
+  };
+
   return (
     <div className="flex min-h-screen bg-white text-[#383838] flex-col">
       <EPHeader />
@@ -219,7 +243,7 @@ export default function CreateAuctionPage() {
         {/* Header with back button */}
         <div
           className="flex items-center gap-2 mb-1 cursor-pointer"
-          onClick={() => router.push('/ep/dashboard')}
+          onClick={handleBack}
         >
           <Image width={5} height={5} src="/icons/arrow_left.svg" alt="Back" className="w-4 h-4" />
           <h1 className="text-xl font-semibold">Create Auction</h1>

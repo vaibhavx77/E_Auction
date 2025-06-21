@@ -1,5 +1,7 @@
 import Image from 'next/image';
 import { Auction } from '@/types/auction';
+import { useState } from 'react';
+import NotificationDropdown from '../NotificationDropdown';
 
 export default function DashboardCardSection({
   auctions,
@@ -10,6 +12,7 @@ export default function DashboardCardSection({
 }) {
   const countByStatus = (status: string) =>
     auctions.filter((a) => a.status === status).length;
+    const [notifOpen, setNotifOpen] = useState(false);
 
   return (
     <>
@@ -19,9 +22,17 @@ export default function DashboardCardSection({
           <h1 className="text-2xl font-bold mb-1 text-body">Dashboard</h1>
           <p className="text-sm ">Create, track, and review auctions</p>
         </div>
-        <button className="w-10 h-10 bg-background rounded-full flex items-center justify-center">
-          <Image width={5} height={5} src="/icons/bell.svg" alt="Notifications" className="w-5 h-5" />
-        </button>
+         <div className="relative">
+          <button
+            className="w-10 h-10 bg-background rounded-full flex items-center justify-center shadow-sm hover:shadow transition"
+            onClick={() => setNotifOpen(v => !v)}
+          >
+            <Image width={20} height={20} src="/icons/bell.svg" alt="Notifications" className="w-5 h-5" />
+            {/* red dot for unread */}
+            <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-status-live" />
+          </button>
+          <NotificationDropdown open={notifOpen} onClose={() => setNotifOpen(false)} />
+        </div>
       </div>
 
       {/* Stats Cards */}
