@@ -11,6 +11,7 @@ import ProductLotStep from '@/components/CreateAuctionSteps/ProductLotStep';
 import AuctionSettingsStep from '@/components/CreateAuctionSteps/AuctionSettingsStep';
 import SupplierInvitationStep from '@/components/CreateAuctionSteps/SupplierInvitationStep';
 import ReviewLaunchStep from '@/components/CreateAuctionSteps/ReviewLaunchStep';
+import Loader from '@/components/Loader';
 
 // ---- TYPE DEFINITIONS ----
 type AuctionData = {
@@ -303,6 +304,7 @@ useEffect(() => {
             handleSubmit();
           }}
         />
+        {loading && <Loader />}
       </main>
     </div>
   );

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import AuctionTable from '@/components/AuctionTable';
+import Loader from '@/components/Loader';
 import { Auction } from '@/types/auction';
 
 const tabs = ['All', 'Live', 'Scheduled', 'Completed'] as const;
@@ -19,6 +20,8 @@ export default function DashboardAuctionTable({
   const [tab, setTab] = useState<TabType>('All');
   const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
+
+  if (loading) return <Loader />;
 
   return (
     <>
