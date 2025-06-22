@@ -11,6 +11,34 @@ import ProductLotStep from '@/components/CreateAuctionSteps/ProductLotStep';
 import AuctionSettingsStep from '@/components/CreateAuctionSteps/AuctionSettingsStep';
 import SupplierInvitationStep from '@/components/CreateAuctionSteps/SupplierInvitationStep';
 import ReviewLaunchStep from '@/components/CreateAuctionSteps/ReviewLaunchStep';
+import Loader from '@/components/Loader';
+
+// ---- TYPE DEFINITIONS ----
+type LotData = {
+  lotId?: string;
+  hsCode?: string;
+  productName?: string;
+  material?: string;
+  dimensions?: string;
+  prevCost?: string | number;
+};
+
+type AuctionData = {
+  title?: string;
+  type?: string;
+  sapCode?: string;
+  reservePrice?: number | string;
+  currency?: string;
+  productName?: string;
+  lotCount?: number | string;
+  startTime?: string;
+  endTime?: string;
+  suppliers?: string[];
+  lots?: LotData[];
+  autoExtension?: boolean;
+  allowPause?: boolean;
+  emailPreview?: string;
+};
 
 const steps = [
   'Auction Details',
@@ -21,100 +49,170 @@ const steps = [
 ];
 
 export default function CreateAuctionPage() {
-  const [step, setStep] = useState(0);
-  const [auctionData, setAuctionData] = useState<any>({});
-  const [loading, setLoading] = useState(false);
-  const router = useRouter();
-  const [showErrors, setShowErrors] = useState(false);
-  const [showLaunchModal, setShowLaunchModal] = useState(false);
+  // 1. Step state persisted to localStorage
+const [step, setStep] = useState<number>(0);
 
-  function ConfirmLaunchModal({ open, onClose, onConfirm }: { open: boolean; onClose: () => void; onConfirm: () => void }) {
-  if (!open) return null;
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm">
-      <div className="bg-white rounded-lg shadow-lg p-8 min-w-[350px] max-w-[95vw] flex flex-col items-center relative">
-        <div className="text-lg font-semibold mb-2 text-center">Save &amp; Launch</div>
-        <div className="text-center text-[#555] mb-6">
-          Are you sure you want to save changes &amp; send invitations?
-        </div>
-        <div className="flex gap-3 w-full">
-          <button
-            onClick={onClose}
-            className="w-1/2 py-2 rounded border border-[#DDE1EB] text-sm font-medium bg-[#f8fafc] hover:bg-[#f3f6fb] transition"
-          >
-            Back
-          </button>
-          <button
-            onClick={onConfirm}
-            className="w-1/2 py-2 rounded bg-[#1976D2] text-white text-sm font-medium hover:bg-[#1565c0] transition"
-          >
-            Confirm
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-
-const goNext = () => {
-  if (!isStepValid()) {
-    setShowErrors(true); // This triggers red border display
-    return;
-  }
-  setShowErrors(false);
-  setStep(step + 1);
-};
-
-  const updateAuctionData = (data: any) => {
-    setAuctionData((prev: any) => ({ ...prev, ...data }));
-  };
-
-  const requiredFieldsPerStep: Record<number, string[]> = {
-  0: ['title', 'type', 'sapCode', 'reservePrice', 'currency'],
-  1: ['productName', 'lotCount'], // Add more if needed from ProductLotStep
-  2: ['startTime', 'endTime'], // Add more if needed from AuctionSettingsStep
-  3: ['suppliers'],
-  // 4: [] (Review step doesn't need validation)
-};
-
-const isStepValid = () => {
-  const required = requiredFieldsPerStep[step] || [];
-  return required.every((field) => auctionData[field] && auctionData[field] !== '');
-};
-
-
-// Save auctionData to localStorage
-const saveDraft = () => {
-  localStorage.setItem('auctionDraft', JSON.stringify(auctionData));
-  alert('Draft saved!');
-};
-
-// Load auctionData from localStorage on mount
+// After mount, sync with localStorage
 useEffect(() => {
-  const draft = localStorage.getItem('auctionDraft');
-  if (draft) {
-    setAuctionData(JSON.parse(draft));
+  const savedStep = localStorage.getItem('auctionStep');
+  if (savedStep && !isNaN(Number(savedStep))) {
+    setStep(Number(savedStep));
   }
 }, []);
 
+  const [auctionData, setAuctionData] = useState<AuctionData>({});
+  const [loading, setLoading] = useState<boolean>(false);
+  const router = useRouter();
+  const [showErrors, setShowErrors] = useState<boolean>(false);
+  const [showLaunchModal, setShowLaunchModal] = useState<boolean>(false);
 
-const renderStepContent = (step: number) => {
-  switch (step) {
-    case 0: return <AuctionDetailsStep data={auctionData} onChange={updateAuctionData} showErrors={showErrors} />;
-    case 1: return <ProductLotStep data={auctionData} onChange={updateAuctionData} showErrors={showErrors} />;
-    case 2: return <AuctionSettingsStep data={auctionData} onChange={updateAuctionData} showErrors={showErrors} />;
-    case 3: return <SupplierInvitationStep data={auctionData} onChange={updateAuctionData} showErrors={showErrors} />;
-    case 4: return <ReviewLaunchStep data={auctionData} onSubmit={function (): void {
-      throw new Error('Function not implemented.');
-    } } />;
-    default: return null;
+  // 2. Save step to localStorage on step change
+  useEffect(() => {
+    localStorage.setItem('auctionStep', step.toString());
+  }, [step]);
+
+  // 3. Save and load draft data
+  useEffect(() => {
+    const draft = localStorage.getItem('auctionDraft');
+    if (draft) {
+      setAuctionData(JSON.parse(draft));
+    }
+  }, []);
+
+  // ---- Modal (can be refactored out) ----
+  function ConfirmLaunchModal({
+    open,
+    onClose,
+    onConfirm,
+  }: {
+    open: boolean;
+    onClose: () => void;
+    onConfirm: () => void;
+  }) {
+    if (!open) return null;
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm">
+        <div className="bg-white rounded-lg shadow-lg p-8 min-w-[350px] max-w-[95vw] flex flex-col items-center relative">
+          <div className="text-lg font-semibold mb-2 text-center">Save &amp; Launch</div>
+          <div className="text-center text-[#555] mb-6">
+            Are you sure you want to save changes &amp; send invitations?
+          </div>
+          <div className="flex gap-3 w-full">
+            <button
+              onClick={onClose}
+              className="w-1/2 py-2 rounded border border-[#DDE1EB] text-sm font-medium bg-[#f8fafc] hover:bg-[#f3f6fb] transition"
+            >
+              Back
+            </button>
+            <button
+              onClick={onConfirm}
+              className="w-1/2 py-2 rounded bg-[#1976D2] text-white text-sm font-medium hover:bg-[#1565c0] transition"
+            >
+              Confirm
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   }
-};
 
+  // ---- Navigation & Validation ----
+  const requiredFieldsPerStep: Record<number, Array<keyof AuctionData>> = {
+    0: ['title', 'type', 'sapCode', 'reservePrice', 'currency'],
+    1: ['productName', 'lotCount'],
+    2: ['startTime', 'endTime'],
+    3: ['suppliers'],
+  };
+
+  const isStepValid = () => {
+    const required = requiredFieldsPerStep[step] || [];
+    return required.every((field) => {
+      const value = auctionData[field];
+      return value !== undefined && value !== '' && !(Array.isArray(value) && value.length === 0);
+    });
+  };
+
+  const goNext = () => {
+    if (!isStepValid()) {
+      setShowErrors(true);
+      return;
+    }
+    setShowErrors(false);
+    setStep(step + 1);
+  };
+
+  const updateAuctionData = (data: Partial<AuctionData>) => {
+    setAuctionData((prev) => ({ ...prev, ...data }));
+  };
+
+  // Save auctionData to localStorage as draft
+  const saveDraft = () => {
+    localStorage.setItem('auctionDraft', JSON.stringify(auctionData));
+    alert('Draft saved!');
+  };
+
+  // ---- Step Content ----
+  const renderStepContent = (step: number) => {
+    switch (step) {
+      case 0:
+        return (
+          <AuctionDetailsStep
+            data={auctionData}
+            onChange={updateAuctionData}
+            showErrors={showErrors}
+          />
+        );
+      case 1:
+        return (
+          <ProductLotStep
+            data={auctionData}
+            onChange={updateAuctionData}
+            showErrors={showErrors}
+          />
+        );
+      case 2:
+        return (
+          <AuctionSettingsStep
+            data={auctionData}
+            onChange={updateAuctionData}
+            showErrors={showErrors}
+          />
+        );
+      case 3:
+        return (
+          <SupplierInvitationStep
+            data={{
+              ...auctionData,
+              suppliers: auctionData.suppliers ?? [],
+            }}
+            onChange={updateAuctionData}
+            showErrors={showErrors}
+          />
+        );
+      case 4:
+        return (
+          <ReviewLaunchStep
+            data={auctionData}
+            onSubmit={function (): void {
+              throw new Error('Function not implemented.');
+            }}
+          />
+        );
+      default:
+        return null;
+    }
+  };
+
+  // ---- Submission ----
   const handleSubmit = async () => {
     setLoading(true);
-    if (!auctionData.title || !auctionData.reservePrice || !auctionData.currency || !auctionData.startTime || !auctionData.endTime) {
+    if (
+      !auctionData.title ||
+      !auctionData.reservePrice ||
+      !auctionData.currency ||
+      !auctionData.startTime ||
+      !auctionData.endTime
+    ) {
       alert('Please fill all required fields.');
       setLoading(false);
       return;
@@ -132,15 +230,23 @@ const renderStepContent = (step: number) => {
       setLoading(false);
       if (res.ok) {
         alert('Auction created successfully!');
+        localStorage.removeItem('auctionStep');   // <-- RESET STEP
+        localStorage.removeItem('auctionDraft');  // <-- Optionally clear draft too
         router.push('/ep/dashboard');
       } else {
         const data = await res.json();
         alert(data.message || 'Auction creation failed');
       }
-    } catch (err) {
+    } catch {
       setLoading(false);
       alert('Network error');
     }
+  };
+
+  // ---- Back Navigation: Reset step for a fresh start ----
+  const handleBack = () => {
+    localStorage.removeItem('auctionStep');
+    router.push('/ep/dashboard');
   };
 
   return (
@@ -151,7 +257,7 @@ const renderStepContent = (step: number) => {
         {/* Header with back button */}
         <div
           className="flex items-center gap-2 mb-1 cursor-pointer"
-          onClick={() => router.push('/ep/dashboard')}
+          onClick={handleBack}
         >
           <Image width={5} height={5} src="/icons/arrow_left.svg" alt="Back" className="w-4 h-4" />
           <h1 className="text-xl font-semibold">Create Auction</h1>
@@ -165,8 +271,8 @@ const renderStepContent = (step: number) => {
           steps={steps}
           currentStep={step}
           onStepClick={(index) => {
-    if (index <= step) setStep(index); // only allow backward
-  }}
+            if (index <= step) setStep(index); // only allow backward
+          }}
         />
 
         {/* Step Content */}
@@ -176,43 +282,42 @@ const renderStepContent = (step: number) => {
 
         {/* Footer navigation */}
         <div className="flex bottom-0 justify-between mt-6">
-  <button
-    className="border border-[#DDE1EB] px-4 py-2 rounded text-sm"
-    type="button"
-    onClick={saveDraft}
-  >
-    Save Draft
-  </button>
-  <div className="flex gap-4">
-<button
-  onClick={
-    step === steps.length - 1
-      ? () => setShowLaunchModal(true)
-      : goNext
-  }
-  className={`px-4 py-2 bg-blue-600 text-white rounded text-sm transition ${
-    loading || !isStepValid() ? 'opacity-50 cursor-not-allowed' : ''
-  }`}
-  disabled={loading || !isStepValid()}
->
-  {loading
-    ? 'Submitting...'
-    : step === steps.length - 1
-    ? 'Launch Auction'
-    : 'Next'}
-</button>
-
-  </div>
-</div>
-<ConfirmLaunchModal
-  open={showLaunchModal}
-  onClose={() => setShowLaunchModal(false)}
-  onConfirm={() => {
-    setShowLaunchModal(false);
-    handleSubmit();
-  }}
-/>
-
+          <button
+            className="border border-[#DDE1EB] px-4 py-2 rounded text-sm"
+            type="button"
+            onClick={saveDraft}
+          >
+            Save Draft
+          </button>
+          <div className="flex gap-4">
+            <button
+              onClick={
+                step === steps.length - 1
+                  ? () => setShowLaunchModal(true)
+                  : goNext
+              }
+              className={`px-4 py-2 bg-blue-600 text-white rounded text-sm transition ${
+                loading || !isStepValid() ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
+              disabled={loading || !isStepValid()}
+            >
+              {loading
+                ? 'Submitting...'
+                : step === steps.length - 1
+                ? 'Launch Auction'
+                : 'Next'}
+            </button>
+          </div>
+        </div>
+        <ConfirmLaunchModal
+          open={showLaunchModal}
+          onClose={() => setShowLaunchModal(false)}
+          onConfirm={() => {
+            setShowLaunchModal(false);
+            handleSubmit();
+          }}
+        />
+        {loading && <Loader />}
       </main>
     </div>
   );

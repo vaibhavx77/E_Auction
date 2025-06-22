@@ -1,6 +1,7 @@
 'use client';
 
-import { useState,  memo } from 'react';
+import { useState, memo } from 'react';
+import Loader from '@/components/Loader';
 
 type LotId = 'LOT-001' | 'LOT-002' | 'LOT-003';
 
@@ -229,6 +230,7 @@ const SuccessScreen = memo(function SuccessScreen() {
 
 export default function SupplierRegister() {
   const [step, setStep] = useState(0);
+  const [loading, setLoading] = useState(false);
   const [form, setForm] = useState<{
     name: string;
     type: string;
@@ -270,6 +272,12 @@ export default function SupplierRegister() {
         [lot]: value,
       },
     }));
+  };
+
+  const handleRegister = async () => {
+    setLoading(true);
+    // ...register logic...
+    setLoading(false);
   };
 
   if (step === 0) return <AgreementScreen setStep={setStep} />;

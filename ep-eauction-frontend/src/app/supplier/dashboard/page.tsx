@@ -1,6 +1,9 @@
-'use client';
+import Loader from '@/components/Loader';
+import { useState } from 'react';
 
 export default function SupplierDashboard() {
+  const [loading, setLoading] = useState(true);
+
   const invitedAuctions = [
     {
       title: 'Food Service Paper Cups - Q2',

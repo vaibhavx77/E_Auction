@@ -4,9 +4,10 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import AuctionTable from '@/components/AuctionTable';
+import Loader from '@/components/Loader';
 import { Auction } from '@/types/auction';
 
-const tabs = ['All', 'Live', 'Scheduled', 'Completed'] as const;
+const tabs = ['All', 'Live', 'Paused', 'Scheduled', 'Completed'] as const;
 type TabType = typeof tabs[number];
 
 export default function DashboardAuctionTable({
@@ -19,6 +20,8 @@ export default function DashboardAuctionTable({
   const [tab, setTab] = useState<TabType>('All');
   const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
+
+  if (loading) return <Loader />;
 
   return (
     <>
@@ -54,6 +57,7 @@ export default function DashboardAuctionTable({
                 }`}
               >
                 {t === 'Live' && <div className="h-2 w-2 rounded-full bg-status-live" />}
+                {t === 'Paused' && <div className="h-2 w-2 rounded-full bg-yellow-500" />}
                 {t}
               </button>
             ))}

@@ -3,6 +3,10 @@
 import { Dialog, DialogContent, DialogTitle } from  '@/components/ui/dialog';
 import { useState, useEffect } from 'react';
 
+// ---- TYPE DEFINITIONS ----
+type Country = { _id: string; name: string };
+type Product = { _id: string; name: string };
+
 export default function DutyModal({
   open,
   country,
@@ -12,11 +16,11 @@ export default function DutyModal({
   onSave,
 }: {
   open: boolean;
-  country?: { _id: string; name: string };
-  product?: { _id: string; name: string };
+  country?: Country;
+  product?: Product;
   currentRate?: number | null;
   onClose: () => void;
-  onSave: (product: any, country: any, rate: number) => void;
+  onSave: (product: Product, country: Country, rate: number) => void;
 }) {
   const [rate, setRate] = useState(currentRate ?? '');
 

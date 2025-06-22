@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Loader from '@/components/Loader';
 
 export default function OtpModal({
   email,
@@ -18,6 +19,11 @@ export default function OtpModal({
   const [error, setError] = useState('');
   const [resendTimer, setResendTimer] = useState(30);
 
+  function isErrorWithMessage(e: unknown): e is { message: string } {
+  return typeof e === 'object' && e !== null && 'message' in e && typeof (e as Record<string, unknown>).message === 'string';
+}
+
+
   useEffect(() => {
     if (open) {
       document.body.style.overflow = 'hidden';
@@ -30,7 +36,7 @@ export default function OtpModal({
   }, [open]);
 
   useEffect(() => {
-    let timer: any;
+    let timer: ReturnType<typeof setTimeout>;
     if (open && resendTimer > 0) {
       timer = setTimeout(() => setResendTimer(resendTimer - 1), 1000);
     }
@@ -50,9 +56,13 @@ export default function OtpModal({
       const data = await res.json();
       onVerified(data.token, data.role);
       onClose();
-    } catch (err: any) {
-      setError(err?.message || 'Verification failed');
-    } finally {
+    } catch (err) {
+  if (isErrorWithMessage(err)) {
+    setError(err.message);
+  } else {
+    setError('Verification failed');
+  }
+} finally {
       setLoading(false);
     }
   };
@@ -66,7 +76,7 @@ export default function OtpModal({
         body: JSON.stringify({ email }),
       });
       setResendTimer(30);
-    } catch (err: any) {
+    } catch {
       setError('Failed to resend OTP');
     }
   };
@@ -85,36 +95,42 @@ export default function OtpModal({
           ×
         </button>
         <h2 className="text-center text-lg font-semibold mb-4">Enter OTP</h2>
-        <input
-          type="text"
-          placeholder="Enter 6-digit OTP"
-          value={otp}
-          onChange={(e) => setOtp(e.target.value)}
-          maxLength={6}
-          className="w-full border border-[#DDE1EB] rounded-lg px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
-          autoFocus
-        />
-        {error && <p className="text-red-600 text-sm mb-2">{error}</p>}
-        <button
-          onClick={handleVerify}
-          disabled={loading || otp.length !== 6}
-          className="w-full bg-[#007AFF] text-white text-base font-medium py-3 rounded-lg hover:opacity-90 transition mb-1 disabled:opacity-50"
-        >
-          {loading ? 'Verifying...' : 'Verify OTP'}
-        </button>
-        <div className="mt-2 text-sm text-center w-full">
-          {resendTimer > 0 ? (
-            <span className="text-gray-500">Resend OTP in {resendTimer}s</span>
-          ) : (
+        {loading ? (
+          <Loader />
+        ) : (
+          <>
+            <input
+              type="text"
+              placeholder="Enter 6-digit OTP"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value)}
+              maxLength={6}
+              className="w-full border border-[#DDE1EB] rounded-lg px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
+              autoFocus
+            />
+            {error && <p className="text-red-600 text-sm mb-2">{error}</p>}
             <button
-              className="text-blue-600 underline hover:no-underline hover:text-blue-800 transition"
-              onClick={handleResendOtp}
-              disabled={loading}
+              onClick={handleVerify}
+              disabled={loading || otp.length !== 6}
+              className="w-full bg-[#007AFF] text-white text-base font-medium py-3 rounded-lg hover:opacity-90 transition mb-1 disabled:opacity-50"
             >
-              Resend OTP
+              {loading ? 'Verifying...' : 'Verify OTP'}
             </button>
-          )}
-        </div>
+            <div className="mt-2 text-sm text-center w-full">
+              {resendTimer > 0 ? (
+                <span className="text-gray-500">Resend OTP in {resendTimer}s</span>
+              ) : (
+                <button
+                  className="text-blue-600 underline hover:no-underline hover:text-blue-800 transition"
+                  onClick={handleResendOtp}
+                  disabled={loading}
+                >
+                  Resend OTP
+                </button>
+              )}
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

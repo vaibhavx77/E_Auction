@@ -1,10 +1,22 @@
+type AuctionDetailsData = {
+  title?: string;
+  type?: string;
+  sapCode?: string;
+  reservePrice?: number | string;
+  currency?: string;
+};
+
 type AuctionDetailsStepProps = {
-  data: any;
-  onChange: (data: any) => void;
+  data: AuctionDetailsData;
+  onChange: (data: Partial<AuctionDetailsData>) => void;
   showErrors?: boolean;
 };
 
-export default function AuctionDetailsStep({ data, onChange, showErrors }: AuctionDetailsStepProps) {
+export default function AuctionDetailsStep({
+  data,
+  onChange,
+  showErrors,
+}: AuctionDetailsStepProps) {
   return (
     <div>
       <h2 className="text-lg font-semibold mb-2">Enter basic auction information</h2>

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
 import DashboardCardSection from '@/components/EPDashboard/DashboardCardSection';
 import DashboardAuctionTable from '@/components/EPDashboard/DashboardAuctionTable';
+import Loader from '@/components/Loader';
 import { fetchAuctions } from '@/services/auction.service';
 import { Auction } from '@/types/auction';
 
@@ -28,8 +29,16 @@ export default function EPDashboard() {
 
   return (
     <DashboardLayout>
-      <DashboardCardSection auctions={auctions} loading={loading} />
-      <DashboardAuctionTable auctions={auctions} loading={loading} />
+      {loading ? (
+        <div className="flex flex-1 items-center justify-center min-h-[300px]">
+          <Loader />
+        </div>
+      ) : (
+        <>
+          <DashboardCardSection auctions={auctions} loading={loading} />
+          <DashboardAuctionTable auctions={auctions} loading={loading} />
+        </>
+      )}
     </DashboardLayout>
   );
 }

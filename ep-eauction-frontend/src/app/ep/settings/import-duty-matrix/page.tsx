@@ -12,8 +12,8 @@ type Country = { _id: string; name: string };
 type Product = { _id: string; name: string; hsCode?: string };
 type DutyRow = {
   _id: string;
-  product: string;      // product name
-  country: string;      // country name
+  product: string;
+  country: string;
   dutyRate: number | null;
   productId?: string;
   countryId?: string;
@@ -74,6 +74,15 @@ export default function ImportDutyMatrixPage() {
   const [newCountry, setNewCountry] = useState('');
   const [showAddProduct, setShowAddProduct] = useState(false);
   const [newProduct, setNewProduct] = useState('');
+  const [deleteMode, setDeleteMode] = useState(false);
+
+  const [confirm, setConfirm] = useState<{
+    open: boolean;
+    type: 'country' | 'product' | null;
+    id: string;
+    name: string;
+  }>({ open: false, type: null, id: '', name: '' });
+
   const router = useRouter();
 
   // Fetch countries
@@ -110,7 +119,6 @@ export default function ImportDutyMatrixPage() {
   };
   useEffect(loadDuties, []);
 
-  // Build a duty matrix: { [productName]: { [countryName]: { rate, id } } }
   const dutyMatrix = useMemo(() => {
     const matrix: { [product: string]: { [country: string]: { rate: string, id?: string } } } = {};
     for (const row of dutyRows ?? []) {
@@ -123,14 +131,10 @@ export default function ImportDutyMatrixPage() {
     return matrix;
   }, [dutyRows]);
 
-  // Table column keys are dynamic
   const countryKeys = countries.map(c => c.name);
 
-  // Find product/country by name for modal
-  const getProductByName = (name: string) => products.find(p => p.name === name);
   const getCountryByName = (name: string) => countries.find(c => c.name === name);
 
-  // Handlers for modal
   const handleOpenAdd = (product: Product, country: Country) => {
     setModal({ open: true, product, country, currentRate: null, dutyRowId: undefined });
   };
@@ -145,8 +149,7 @@ export default function ImportDutyMatrixPage() {
   };
   const handleCloseModal = () => setModal({ open: false });
 
-  // Save or update duty
-  const handleSaveDuty = async (product: Product, country: Country, rate: number, dutyRowId?: string) => {
+  const handleSaveDuty = async (product: Product, country: Country, rate: number) => {
     try {
       await fetch(`${API_BASE}/api/import-duty/`, {
         method: "POST",
@@ -159,12 +162,11 @@ export default function ImportDutyMatrixPage() {
       });
       handleCloseModal();
       loadDuties();
-    } catch (err) {
+    } catch {
       alert('Failed to save duty rate');
     }
   };
 
-  // Add Country
   const handleAddCountry = async () => {
     if (!newCountry.trim()) return;
     await fetch(`${API_BASE}/api/import-duty/country`, {
@@ -177,7 +179,6 @@ export default function ImportDutyMatrixPage() {
     loadCountries();
   };
 
-  // Add Product
   const handleAddProduct = async () => {
     if (!newProduct.trim()) return;
     await fetch(`${API_BASE}/api/import-duty/product`, {
@@ -190,9 +191,21 @@ export default function ImportDutyMatrixPage() {
     loadProducts();
   };
 
-  // Save changes (for now: just reload)
+  const handleDeleteCountry = async (id: string) => {
+    alert(`Country deleted (id: ${id})`);
+    setConfirm({ open: false, type: null, id: '', name: '' });
+    loadCountries();
+    loadDuties();
+  };
+
+  const handleDeleteProduct = async (id: string) => {
+    alert(`Product deleted (id: ${id})`);
+    setConfirm({ open: false, type: null, id: '', name: '' });
+    loadProducts();
+    loadDuties();
+  };
+
   const handleSaveChanges = () => {
-    // If you ever add bulk edit, handle here.
     alert('Changes saved!');
     loadDuties();
   };
@@ -266,7 +279,24 @@ export default function ImportDutyMatrixPage() {
             Add Product
           </button>
         </div>
+        {!deleteMode ? (
+          <button
+            onClick={() => setDeleteMode(true)}
+            className="flex items-center gap-2 bg-background-red text-red-600 px-4 py-2 rounded text-sm font-semibold transition bg-white"
+          >
+            <Image width={16} height={16} src="/icons/trash.svg" alt="Delete" />
+            Delete
+          </button>
+        ) : (
+          <button
+            onClick={() => setDeleteMode(false)}
+            className="flex items-center gap-2 border border-gray-400 text-gray-700 px-4 py-2 rounded text-sm font-semibold transition bg-white"
+          >
+            Cancel
+          </button>
+        )}
       </div>
+
       {/* Add Country Modal */}
       {showAddCountry && (
         <div className="fixed inset-0 z-40 bg-black/20 flex items-center justify-center">
@@ -305,23 +335,84 @@ export default function ImportDutyMatrixPage() {
           </div>
         </div>
       )}
+
+      {confirm.open && (
+  <div className="fixed inset-0 z-50 bg-black/30 flex items-center justify-center">
+    <div className="bg-white rounded-xl p-8 w-full max-w-sm shadow-xl flex flex-col gap-5 min-w-[340px]">
+      {/* Title left, icon on right */}
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-lg font-bold text-gray-900">
+          Confirm Deletion
+        </span>
+      </div>
+      {/* Description */}
+      <div className="text-left mb-2">
+        <span>
+          Are you sure you want to delete{' '}
+          <b className="text-red-600">
+            {confirm.type === 'country' ? 'country' : 'product'} {confirm.name}
+          </b>
+          ?
+        </span>
+        <div className="text-xs mt-8 mt-1">
+          This action cannot be undone.
+        </div>
+      </div>
+      {/* Buttons aligned right */}
+      <div className="flex justify-end gap-2 mt-4">
+        <button
+          className="px-5 py-2 rounded bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium"
+          onClick={() => setConfirm({ open: false, type: null, id: '', name: '' })}
+        >
+          Cancel
+        </button>
+        <button
+          className="px-5 py-2 rounded bg-red-600 hover:bg-red-700 text-white font-semibold"
+          onClick={() => {
+            if (confirm.type === 'country') handleDeleteCountry(confirm.id);
+            if (confirm.type === 'product') handleDeleteProduct(confirm.id);
+          }}
+        >
+          OK
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+
       {/* Table */}
       <div className="border border-border rounded text-sm overflow-x-auto w-full">
-  <table className="w-full border-collapse text-left">
-
+        <table className="w-full border-collapse text-left">
           <thead className="bg-background-subtle text-body font-medium border-b border-border">
             <tr>
               <th
                 className="min-w-[300px] px-4 py-3 sticky left-0 bg-background-subtle z-20 border-r border-border whitespace-nowrap shadow-md"
               >
-                Product <span className="text-xs ">(HS Code)</span>
+                <div className="flex items-center justify-between">
+                  <span>Product <span className="text-xs">(HS Code)</span></span>
+                  {/* Product Delete icon is per row, not in header */}
+                </div>
               </th>
-              {countryKeys.map((country) => (
+              {countryKeys.map((country, cIdx) => (
                 <th
                   key={country}
                   className="pl-2 pr-12 py-1 border-l border-border bg-background-subtle whitespace-nowrap"
                 >
-                  {country} <span className="text-xs ">Duty %</span>
+                  <div className="flex items-center justify-between">
+                    <span>
+                      {country} <span className="text-xs ml-1">Duty %</span>
+                    </span>
+                    {deleteMode && (
+                      <button
+                        title={`Delete ${country}`}
+                        onClick={() => setConfirm({ open: true, type: 'country', id: countries[cIdx]._id, name: country })}
+                        className="ml-2"
+                      >
+                        <Image width={16} height={16} src="/icons/trash_filled.svg" alt="Delete Country" className="inline-block" />
+                      </button>
+                    )}
+                  </div>
                 </th>
               ))}
             </tr>
@@ -343,8 +434,23 @@ export default function ImportDutyMatrixPage() {
                   <tr key={prod._id} className="border-b border-border">
                     <td className="px-4 py-4 sticky left-0 bg-white z-20 border-r border-border shadow-md">
                       <div className="flex flex-col">
-                        <span>{prod.name}</span>
-                        {prod.hsCode && <span className="text-xs ">{prod.hsCode}</span>}
+                        <div className="flex items-center justify-between">
+                          <span>
+                            {prod.name}
+                            {prod.hsCode && (
+                              <span className="text-xs block">{prod.hsCode}</span>
+                            )}
+                          </span>
+                          {deleteMode && (
+                            <button
+                              title={`Delete ${prod.name}`}
+                              onClick={() => setConfirm({ open: true, type: 'product', id: prod._id, name: prod.name })}
+                              className="ml-2"
+                            >
+                              <Image width={16} height={16} src="/icons/trash_filled.svg" alt="Delete Product" className="inline-block" />
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </td>
                     {countryKeys.map((country) => {
@@ -392,6 +498,7 @@ export default function ImportDutyMatrixPage() {
           </tbody>
         </table>
       </div>
+
       {/* Modal for add/edit duty */}
       <DutyModal
         open={modal.open}
