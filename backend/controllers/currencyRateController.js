@@ -45,6 +45,23 @@ console.log(req.body, "bbbbbbbbbbbb")
   }
 };
 
+export const deleteCurrencyRate = async (req, res) => {
+  try {
+    const { code } = req.body;
+    console.log(code, "code>>>>");
+    const currencyRate = await CurrencyRate.findOneAndDelete({ code });
+    console.log(currencyRate, "currencyrate>>>>");
+
+    if (!currencyRate) {
+      return res.status(404).json({ message: "Currency rate not found" });
+    }
+
+    res.status(200).json({ message: "Currency rate deleted", currencyRate });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to delete currency rate", error: err.message });
+  }
+};
+
 // Get All Currency Rates (with parsed decimals)
 export const getAllCurrencyRates = async (req, res) => {
   try {

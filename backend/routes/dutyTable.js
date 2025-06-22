@@ -24,6 +24,9 @@ import {
   addProduct,
   getAllProducts,
   getAllCountries,
+  // deleteCountry,
+  // deleteProduct,
+  deleteProductOrCountryWithDuties,
 } from "../controllers/dutyTableController.js";
 // import { authenticate, authorizeRoles } from "../middlewares/auth.js"; // <-- Not needed for testing
 
@@ -38,5 +41,11 @@ router.post("/country", addCountry);
 
 router.get("/products", getAllProducts);
 router.get("/countries", getAllCountries);
+// router.delete('/countries/:id', deleteCountry);
+// router.delete('/products/:id', deleteProduct);
+router.delete('/deleteProductOrCountryWithDuties', deleteProductOrCountryWithDuties);
+
+// router.get("/import-duty", getAllCountries);
+
 
 export default router;
