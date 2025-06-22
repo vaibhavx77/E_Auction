@@ -5,6 +5,7 @@ type ReviewAuctionData = {
   title?: string;
   sapCode?: string;
   type?: string;
+  productName?: string;
   lots?: {
     lotId?: string;
     hsCode?: string;
@@ -35,6 +36,18 @@ const Card = ({ title, children, className = "" }: { title: string; children: Re
 );
 
 export default function ReviewLaunchStep({ data }: ReviewLaunchStepProps) {
+
+  // Create a fallback for lots if it's undefined or empty
+  const displayLots = data.lots && data.lots.length > 0 
+    ? data.lots 
+    : [{ 
+        lotId: '-', 
+        hsCode: '-', 
+        productName: data.productName || '-',
+        material: '-', 
+        dimensions: '-',
+        prevCost: '-' 
+      }];
 
   return (
     <div className="max-w-3xl mx-auto">
@@ -71,14 +84,16 @@ export default function ReviewLaunchStep({ data }: ReviewLaunchStepProps) {
               </tr>
             </thead>
             <tbody>
-              {(data.lots && data.lots.length > 0 ? data.lots : [{ lotId: '-', hsCode: '-', productName: '-', material: '-', prevCost: '-' }]).map((lot, i) => (
+              {displayLots.map((lot, i) => (
                 <tr key={i} className="bg-white even:bg-[#FAFAFC]">
                   <td className="px-4 py-2 border-b">{lot.lotId || '-'}</td>
                   <td className="px-4 py-2 border-b">{lot.hsCode || '-'}</td>
                   <td className="px-4 py-2 border-b">{lot.productName || '-'}</td>
                   <td className="px-4 py-2 border-b">
-                    {lot.material || '-'}
-                    {lot.dimensions ? `, ${lot.dimensions}` : ''}
+                    {(lot.material && lot.material !== '-') ? lot.material : ''}
+                    {(lot.material && lot.material !== '-' && lot.dimensions) ? ', ' : ''}
+                    {lot.dimensions || ''}
+                    {(!lot.material || lot.material === '-') && !lot.dimensions ? '-' : ''}
                   </td>
                   <td className="px-4 py-2 border-b">{lot.prevCost || '-'}</td>
                 </tr>
@@ -94,13 +109,13 @@ export default function ReviewLaunchStep({ data }: ReviewLaunchStepProps) {
           <div>
             <div className="text-xs mb-1 text-gray-500">Start Date &amp; Time</div>
             <div className="border border-[#E1E6F0] rounded px-2 py-2 bg-white text-[15px]">
-              {data.startTime || "-"}
+              {data.startTime ? new Date(data.startTime).toLocaleString() : "-"}
             </div>
           </div>
           <div>
             <div className="text-xs mb-1 text-gray-500">End Date &amp; Time</div>
             <div className="border border-[#E1E6F0] rounded px-2 py-2 bg-white text-[15px]">
-              {data.endTime || "-"}
+              {data.endTime ? new Date(data.endTime).toLocaleString() : "-"}
             </div>
           </div>
           <div>

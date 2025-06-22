@@ -14,6 +14,15 @@ import ReviewLaunchStep from '@/components/CreateAuctionSteps/ReviewLaunchStep';
 import Loader from '@/components/Loader';
 
 // ---- TYPE DEFINITIONS ----
+type LotData = {
+  lotId?: string;
+  hsCode?: string;
+  productName?: string;
+  material?: string;
+  dimensions?: string;
+  prevCost?: string | number;
+};
+
 type AuctionData = {
   title?: string;
   type?: string;
@@ -25,6 +34,10 @@ type AuctionData = {
   startTime?: string;
   endTime?: string;
   suppliers?: string[];
+  lots?: LotData[];
+  autoExtension?: boolean;
+  allowPause?: boolean;
+  emailPreview?: string;
 };
 
 const steps = [
