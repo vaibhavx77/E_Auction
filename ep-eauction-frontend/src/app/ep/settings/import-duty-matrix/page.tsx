@@ -70,18 +70,16 @@ export default function ImportDutyMatrixPage() {
     dutyRowId?: string;
   }>({ open: false });
 
+  // Delete Modal State
+  const [deleteModal, setDeleteModal] = useState(false);
+  const [deleteProductId, setDeleteProductId] = useState<string | null>(null);
+  const [deleteCountryId, setDeleteCountryId] = useState<string | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
   const [showAddCountry, setShowAddCountry] = useState(false);
   const [newCountry, setNewCountry] = useState('');
   const [showAddProduct, setShowAddProduct] = useState(false);
   const [newProduct, setNewProduct] = useState('');
-  const [deleteMode, setDeleteMode] = useState(false);
-
-  const [confirm, setConfirm] = useState<{
-    open: boolean;
-    type: 'country' | 'product' | null;
-    id: string;
-    name: string;
-  }>({ open: false, type: null, id: '', name: '' });
 
   const router = useRouter();
 
@@ -191,18 +189,29 @@ export default function ImportDutyMatrixPage() {
     loadProducts();
   };
 
-  const handleDeleteCountry = async (id: string) => {
-    alert(`Country deleted (id: ${id})`);
-    setConfirm({ open: false, type: null, id: '', name: '' });
-    loadCountries();
-    loadDuties();
-  };
-
-  const handleDeleteProduct = async (id: string) => {
-    alert(`Product deleted (id: ${id})`);
-    setConfirm({ open: false, type: null, id: '', name: '' });
-    loadProducts();
-    loadDuties();
+  // The only delete logic now:
+  const handleDelete = async () => {
+    setDeleteLoading(true);
+    try {
+      const body = {
+        productId: deleteProductId ?? null,
+        countryId: deleteCountryId ?? null,
+      };
+      await fetch(`${API_BASE}/api/import-duty/deleteProductOrCountryWithDuties`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      setDeleteModal(false);
+      setDeleteProductId(null);
+      setDeleteCountryId(null);
+      loadProducts();
+      loadCountries();
+      loadDuties();
+    } catch {
+      alert('Failed to delete');
+    }
+    setDeleteLoading(false);
   };
 
   const handleSaveChanges = () => {
@@ -247,55 +256,51 @@ export default function ImportDutyMatrixPage() {
       </div>
       {/* Search + Add buttons */}
       <div className="flex justify-between items-center mb-4 flex-wrap gap-2">
-        <div className="flex items-center gap-2 w-full md:w-auto">
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Search products or HS codes"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="border border-borderInput p-2 pl-10 rounded text-sm w-72"
-            />
-            <Image
-              width={5}
-              height={5}
-              src="/icons/magnifying.svg"
-              alt="Search"
-              className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-icon"
-            />
-          </div>
-          <button
-            onClick={() => setShowAddCountry(true)}
-            className="flex items-center gap-2 bg-background-blue text-status-scheduled text-sm font-medium px-4 py-2 rounded"
-          >
-            <Image width={5} height={5} src="/icons/add.svg" alt="Plus" className="w-4 h-4" />
-            Add Country
-          </button>
-          <button
-            onClick={() => setShowAddProduct(true)}
-            className="flex items-center gap-2 bg-status-success-light text-status-success text-sm font-medium px-4 py-2 rounded"
-          >
-            <Image width={5} height={5} src="/icons/add_green.svg" alt="Plus" className="w-4 h-4" />
-            Add Product
-          </button>
-        </div>
-        {!deleteMode ? (
-          <button
-            onClick={() => setDeleteMode(true)}
-            className="flex items-center gap-2 bg-background-red text-red-600 px-4 py-2 rounded text-sm font-semibold transition bg-white"
-          >
-            <Image width={16} height={16} src="/icons/trash.svg" alt="Delete" />
-            Delete
-          </button>
-        ) : (
-          <button
-            onClick={() => setDeleteMode(false)}
-            className="flex items-center gap-2 border border-gray-400 text-gray-700 px-4 py-2 rounded text-sm font-semibold transition bg-white"
-          >
-            Cancel
-          </button>
-        )}
-      </div>
+  {/* Left side: Search, Add Country, Add Product */}
+  <div className="flex items-center gap-2 flex-1 min-w-0">
+    <div className="relative">
+      <input
+        type="text"
+        placeholder="Search products or HS codes"
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        className="border border-borderInput p-2 pl-10 rounded text-sm w-72"
+      />
+      <Image
+        width={5}
+        height={5}
+        src="/icons/magnifying.svg"
+        alt="Search"
+        className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-icon"
+      />
+    </div>
+    <button
+      onClick={() => setShowAddCountry(true)}
+      className="flex items-center gap-2 bg-background-blue text-status-scheduled text-sm font-medium px-4 py-2 rounded"
+    >
+      <Image width={5} height={5} src="/icons/add.svg" alt="Plus" className="w-4 h-4" />
+      Add Country
+    </button>
+    <button
+      onClick={() => setShowAddProduct(true)}
+      className="flex items-center gap-2 bg-status-success-light text-status-success text-sm font-medium px-4 py-2 rounded"
+    >
+      <Image width={5} height={5} src="/icons/add_green.svg" alt="Plus" className="w-4 h-4" />
+      Add Product
+    </button>
+  </div>
+  {/* Right side: Delete button */}
+  <div className="flex-shrink-0">
+    <button
+      onClick={() => setDeleteModal(true)}
+      className="flex items-center gap-2 bg-background-red text-status-error text-sm font-medium px-4 py-2 rounded border border-red-200 hover:bg-red-50 transition"
+    >
+      <Image width={16} height={16} src="/icons/trash.svg" alt="Delete" className="w-4 h-4" />
+      Delete
+    </button>
+  </div>
+</div>
+
 
       {/* Add Country Modal */}
       {showAddCountry && (
@@ -336,50 +341,63 @@ export default function ImportDutyMatrixPage() {
         </div>
       )}
 
-      {confirm.open && (
-  <div className="fixed inset-0 z-50 bg-black/30 flex items-center justify-center">
-    <div className="bg-white rounded-xl p-8 w-full max-w-sm shadow-xl flex flex-col gap-5 min-w-[340px]">
-      {/* Title left, icon on right */}
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-lg font-bold text-gray-900">
-          Confirm Deletion
-        </span>
-      </div>
-      {/* Description */}
-      <div className="text-left mb-2">
-        <span>
-          Are you sure you want to delete{' '}
-          <b className="text-red-600">
-            {confirm.type === 'country' ? 'country' : 'product'} {confirm.name}
-          </b>
-          ?
-        </span>
-        <div className="text-xs mt-8 mt-1">
-          This action cannot be undone.
+      {/* DELETE MODAL - NEW */}
+      {deleteModal && (
+        <div className="fixed inset-0 z-50 bg-black/30 flex items-center justify-center">
+          <div className="bg-white rounded-xl p-6 w-full max-w-sm shadow-lg">
+            <h2 className="text-lg font-semibold mb-4">Delete</h2>
+            <div className="mb-4">
+              <label className="block mb-1 font-medium">Product</label>
+              <select
+                className="border border-borderInput p-2 rounded w-full"
+                value={deleteProductId ?? ''}
+                onChange={e => setDeleteProductId(e.target.value || null)}
+              >
+                <option value="">All Products</option>
+                {products.map((prod) => (
+                  <option key={prod._id} value={prod._id}>{prod.name}</option>
+                ))}
+              </select>
+            </div>
+            <div className="mb-4">
+              <label className="block mb-1 font-medium">Country</label>
+              <select
+                className="border border-borderInput p-2 rounded w-full"
+                value={deleteCountryId ?? ''}
+                onChange={e => setDeleteCountryId(e.target.value || null)}
+              >
+                <option value="">All Countries</option>
+                {countries.map((country) => (
+                  <option key={country._id} value={country._id}>{country.name}</option>
+                ))}
+              </select>
+            </div>
+            <div className="flex justify-end gap-2 mt-6">
+              <button
+                className="px-4 py-2 rounded bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium"
+                onClick={() => {
+                  setDeleteModal(false);
+                  setDeleteProductId(null);
+                  setDeleteCountryId(null);
+                }}
+                disabled={deleteLoading}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-4 py-2 rounded bg-red-600 hover:bg-red-700 text-white font-semibold"
+                onClick={handleDelete}
+                disabled={deleteLoading}
+              >
+                {deleteLoading ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
+            <div className="text-xs text-gray-500 mt-2">
+              Deletion is permanent. Select both to delete a specific entry, or only one for bulk deletion.
+            </div>
+          </div>
         </div>
-      </div>
-      {/* Buttons aligned right */}
-      <div className="flex justify-end gap-2 mt-4">
-        <button
-          className="px-5 py-2 rounded bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium"
-          onClick={() => setConfirm({ open: false, type: null, id: '', name: '' })}
-        >
-          Cancel
-        </button>
-        <button
-          className="px-5 py-2 rounded bg-red-600 hover:bg-red-700 text-white font-semibold"
-          onClick={() => {
-            if (confirm.type === 'country') handleDeleteCountry(confirm.id);
-            if (confirm.type === 'product') handleDeleteProduct(confirm.id);
-          }}
-        >
-          OK
-        </button>
-      </div>
-    </div>
-  </div>
-)}
-
+      )}
 
       {/* Table */}
       <div className="border border-border rounded text-sm overflow-x-auto w-full">
@@ -391,28 +409,16 @@ export default function ImportDutyMatrixPage() {
               >
                 <div className="flex items-center justify-between">
                   <span>Product <span className="text-xs">(HS Code)</span></span>
-                  {/* Product Delete icon is per row, not in header */}
                 </div>
               </th>
-              {countryKeys.map((country, cIdx) => (
+              {countryKeys.map((country) => (
                 <th
                   key={country}
                   className="pl-2 pr-12 py-1 border-l border-border bg-background-subtle whitespace-nowrap"
                 >
-                  <div className="flex items-center justify-between">
-                    <span>
-                      {country} <span className="text-xs ml-1">Duty %</span>
-                    </span>
-                    {deleteMode && (
-                      <button
-                        title={`Delete ${country}`}
-                        onClick={() => setConfirm({ open: true, type: 'country', id: countries[cIdx]._id, name: country })}
-                        className="ml-2"
-                      >
-                        <Image width={16} height={16} src="/icons/trash_filled.svg" alt="Delete Country" className="inline-block" />
-                      </button>
-                    )}
-                  </div>
+                  <span>
+                    {country} <span className="text-xs ml-1">Duty %</span>
+                  </span>
                 </th>
               ))}
             </tr>
@@ -441,15 +447,6 @@ export default function ImportDutyMatrixPage() {
                               <span className="text-xs block">{prod.hsCode}</span>
                             )}
                           </span>
-                          {deleteMode && (
-                            <button
-                              title={`Delete ${prod.name}`}
-                              onClick={() => setConfirm({ open: true, type: 'product', id: prod._id, name: prod.name })}
-                              className="ml-2"
-                            >
-                              <Image width={16} height={16} src="/icons/trash_filled.svg" alt="Delete Product" className="inline-block" />
-                            </button>
-                          )}
                         </div>
                       </div>
                     </td>

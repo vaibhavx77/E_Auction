@@ -54,11 +54,13 @@ app.use("/api/currency-rate", currencyRate);
 console.log(process.env.MONGODB_URI, "process.env.MONGODB_URI")
 // MongoDB Connection
 mongoose
-  .connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    // useCreateIndex: true, // Uncomment if needed for your Mongoose version
-  })
+  // .connect(process.env.MONGODB_URI, {
+  //   useNewUrlParser: true,
+  //   useUnifiedTopology: true,
+  //   // useCreateIndex: true, // Uncomment if needed for your Mongoose version
+  // })
+  .connect(process.env.MONGODB_URI)
+
   .then(() => {
     console.log("MongoDB connected");
     server.listen(PORT, () => {

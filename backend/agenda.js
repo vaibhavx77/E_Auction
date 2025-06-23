@@ -3,7 +3,7 @@ import { Agenda } from 'agenda';
 import Auction from './models/auction.js';
 
 const agenda = new Agenda({
-  db: { address: process.env.MONGO_URI, collection: 'agendaJobs' }
+  db: { address: process.env.MONGODB_URI, collection: 'agendaJobs' }
 });
 
 // Job: Start Auction
