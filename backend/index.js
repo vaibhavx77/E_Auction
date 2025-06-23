@@ -15,6 +15,7 @@ import http from "http";
 import { Server as SocketIOServer } from "socket.io";
 import auctionQARoutes from "./routes/auctionQA.js";
 import dutyRoutes from "./routes/dutyTable.js";
+import { initAgenda } from './agenda.js';
 
 dotenv.config();
 
@@ -27,6 +28,7 @@ const io = new SocketIOServer(server, {
   },
 });
 app.set("io", io);
+initAgenda(io);
 
 const PORT = process.env.PORT || 5000;
 

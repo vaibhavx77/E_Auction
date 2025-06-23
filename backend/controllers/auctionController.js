@@ -2,6 +2,7 @@ import Auction from "../models/auction.js";
 import Lot from "../models/lot.js";
 import User from "../models/user.js";
 import Bid from "../models/bid.js";
+import { getAgendaInstance } from '../agenda.js'
 
 // Create Auction (with optional lots)
 export const createAuction = async (req, res) => {
@@ -45,6 +46,14 @@ export const createAuction = async (req, res) => {
 
     await auction.save();
 
+    const agenda = getAgendaInstance();
+
+// Schedule start job
+await agenda.schedule(new Date(startTime), 'start auction', { auctionId: auction._id });
+
+// Schedule end job
+await agenda.schedule(new Date(endTime), 'end auction', { auctionId: auction._id });
+
     // Validate invited suppliers
     if (invitedSuppliers && invitedSuppliers.length > 0) {
       const validSuppliers = await User.find({
@@ -86,6 +95,7 @@ export const createAuction = async (req, res) => {
 // List all auctions (EP members: all, Suppliers: only invited & active)
 export const listAuctions = async (req, res) => {
   try {
+    console.log(req.user.userId, "req.user.userId")
     let auctions;
     if (["Admin", "Manager", "Viewer"].includes(req.user.role)) {
       auctions = await Auction.find().populate("lots invitedSuppliers createdBy");
@@ -94,7 +104,13 @@ export const listAuctions = async (req, res) => {
         invitedSuppliers: req.user.userId,
         status: { $in: ["Active", "Scheduled"] }
       }).populate("lots invitedSuppliers createdBy");
-    } else {
+    // const  auctions = await Auction.find({
+    //     status: { $in: ["Active", "Scheduled"] }
+    //   }).populate("lots invitedSuppliers createdBy");
+    // } else {
+    //   return res.status(403).json({ message: "Access denied" });
+    // }
+    } else{
       return res.status(403).json({ message: "Access denied" });
     }
     res.json(auctions);
@@ -112,7 +128,7 @@ export const getAuctionDetails = async (req, res) => {
 
     // Suppliers can only view auctions they're invited to
     if (
-      req.user.role === "Supplier" &&
+       req.user.role === "Supplier" &&
       !auction.invitedSuppliers.some(s => s._id.equals(req.user.userId))
     ) {
       return res.status(403).json({ message: "Access denied" });

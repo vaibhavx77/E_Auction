@@ -26,6 +26,67 @@ export const addCountry = async (req, res) => {
   }
 };
 
+
+// export const deleteProduct = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     const product = await Product.findByIdAndDelete(id);
+
+//     if (!product) {
+//       return res.status(404).json({ message: "Product not found" });
+//     }
+
+//     res.status(200).json({ message: "Product deleted", product });
+//   } catch (err) {
+//     res.status(500).json({ message: "Failed to delete product", error: err.message });
+//   }
+// };
+
+
+// export const deleteCountry = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     const country = await Country.findByIdAndDelete(id);
+
+//     if (!country) {
+//       return res.status(404).json({ message: "Country not found" });
+//     }
+
+//     res.status(200).json({ message: "Country deleted", country });
+//   } catch (err) {
+//     res.status(500).json({ message: "Failed to delete country", error: err.message });
+//   }
+// };
+
+
+export const deleteProductOrCountryWithDuties = async (req, res) => {
+  try {
+    const { productId, countryId } = req.body;
+
+    // Delete Product if provided
+    if (productId) {
+      await Product.findByIdAndDelete(productId);
+      await DutyTable.deleteMany({ product: productId });
+    }
+
+    // Delete Country if provided
+    if (countryId) {
+      await Country.findByIdAndDelete(countryId);
+      await DutyTable.deleteMany({ country: countryId });
+    }
+
+    res.status(200).json({ message: "Deletion completed successfully" });
+  } catch (err) {
+    res.status(500).json({
+      message: "Failed to delete data",
+      error: err.message
+    });
+  }
+};
+
+
+
+
 export const getAllProducts = async (req, res) => {
   try {
     const products = await Product.find();
@@ -102,12 +163,12 @@ export const getDutyRates = async (req, res) => {
     const rates = await DutyTable.find()
       .populate('product', 'name')
       .populate('country', 'name code');
+console.log(rates, "kkkkkkkkkkkkkk");
 
  const formattedRates = rates.map((rate) => ({
       _id: rate._id,
       product: rate.product.name,
       country: rate.country.name,
-      code: rate.country.code,
       dutyRate: rate.dutyRate ? parseFloat(rate.dutyRate.toString()) : null,
       createdAt: rate.createdAt,
       updatedAt: rate.updatedAt
