@@ -1,4 +1,3 @@
-import { useState } from "react";
 import ProductLotStep from "./ProductLotStep";
 
 type ProductLotData = {

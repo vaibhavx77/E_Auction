@@ -9,7 +9,6 @@ const lotsList = [
   { id: 'LOT-003', label: 'Premium Packaging Boxes' },
 ] as const;
 
-
 type LotId = typeof lotsList[number]['id'];
 
 const onboardingSteps = ['Company information', 'Carton capacity'];
@@ -35,9 +34,11 @@ const StepOne = ({
       <div className="max-w-md w-full px-4 py-10">
         <h2 className="text-center font-semibold text-lg text-gray-900 mb-1">Participant Onboarding</h2>
         <p className="text-center text-sm text-gray-500 mb-8">Complete your registration to access the live auction</p>
-        <OnboardingBreadcrumb steps={onboardingSteps} currentStep={0} onStepClick={function (index: number): void {
-          throw new Error('Function not implemented.');
-        } } />
+        <OnboardingBreadcrumb
+          steps={onboardingSteps}
+          currentStep={0}
+          onStepClick={() => {}}
+        />
 
         <form
           className="bg-white rounded-xl p-8 shadow-sm border border-gray-200"
@@ -145,9 +146,11 @@ const StepTwo = ({
       <div className="max-w-md w-full px-6 py-10">
         <h2 className="text-center font-semibold text-lg text-gray-900 mb-1">Participant Onboarding</h2>
         <p className="text-center text-sm text-gray-500 mb-8">Complete your registration to access the live auction</p>
-        <OnboardingBreadcrumb steps={onboardingSteps} currentStep={1} onStepClick={function (index: number): void {
-          throw new Error('Function not implemented.');
-        } } />
+        <OnboardingBreadcrumb
+          steps={onboardingSteps}
+          currentStep={1}
+          onStepClick={() => {}}
+        />
 
         <form
           className="bg-white rounded-xl p-8 shadow-sm border border-gray-200"
@@ -225,7 +228,6 @@ const SuccessScreen = memo(function SuccessScreen({ onConfirm }: { onConfirm?: (
   return (
     <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-40">
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm w-[350px] max-w-full px-7 py-7 flex flex-col items-center relative">
-        {/* Checkmark in green soft circle */}
         <div className="mb-4 mt-2">
           <div className="bg-green-100 rounded-xl flex items-center justify-center w-14 h-14 mx-auto">
             <svg width="36" height="36" fill="none" viewBox="0 0 24 24">
@@ -240,13 +242,10 @@ const SuccessScreen = memo(function SuccessScreen({ onConfirm }: { onConfirm?: (
             </svg>
           </div>
         </div>
-        {/* Title */}
         <h2 className="text-xl font-bold text-gray-900 mb-1"> Onboarding Complete!</h2>
-        {/* Subtext */}
         <div className="text-gray-500 text-sm mb-6 text-center">
           You can now access your dashboard and participate in auctions.
         </div>
-        {/* Button */}
         <button
           className="w-full bg-green-400 hover:bg-green-500 text-white rounded-full py-2.5 text-base font-medium shadow-sm transition"
           onClick={onConfirm ?? (() => window.location.href = '/supplier/dashboard')}

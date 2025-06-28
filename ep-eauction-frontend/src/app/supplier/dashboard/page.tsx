@@ -1,6 +1,4 @@
 'use client';
-
-import DashboardLayout from '@/components/shared/DashboardLayout';
 import { useState } from 'react';
 import Image from 'next/image';
 import NotificationDropdown from '@/components/shared/NotificationDropdown';

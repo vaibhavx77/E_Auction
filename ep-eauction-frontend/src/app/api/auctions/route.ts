@@ -15,7 +15,8 @@ export async function GET() {
     { id: '1', title: 'Food Cups', status: 'Live', timeline: '1h', suppliers: '4', lots: '2' }
   ];
   return NextResponse.json(data);
-   } catch (error) {
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
-  }
+} catch (error) {
+  console.error('Error in GET /api/auctions:', error); 
+  return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+}
 }

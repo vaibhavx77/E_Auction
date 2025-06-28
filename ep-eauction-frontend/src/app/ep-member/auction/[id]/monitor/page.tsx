@@ -121,7 +121,7 @@ export default function EPMonitorAuctionPage() {
     socket.on('auctionStatusChanged', (data: { status: string }) => {
       setIsPaused(data.status === 'Paused');
       if (auction) {
-        setAuction(prev => prev ? { ...prev, status: data.status as any } : null);
+        setAuction(prev => prev ? { ...prev, status: data.status as Auction['status'] } : null);
       }
     });
 
@@ -319,8 +319,9 @@ export default function EPMonitorAuctionPage() {
                 Auction is currently paused
               </h3>
               <p className="text-sm text-yellow-700 mt-1">
-                Suppliers cannot place new bids while the auction is paused. Click "Resume Auction" to continue.
-              </p>
+  Suppliers cannot place new bids while the auction is paused. Click &quot;Resume Auction&quot; to continue.
+</p>
+
             </div>
             <button
               onClick={handlePauseResume}
