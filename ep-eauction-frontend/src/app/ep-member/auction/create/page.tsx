@@ -3,23 +3,25 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-
-import EPHeader from '@/components/EPHeader';
-import AuctionBreadcrumb from '@/components/AuctionBreadcrumb';
 import AuctionDetailsStep from '@/components/CreateAuctionSteps/AuctionDetailsStep';
 import ProductLotStep from '@/components/CreateAuctionSteps/ProductLotStep';
 import AuctionSettingsStep from '@/components/CreateAuctionSteps/AuctionSettingsStep';
 import SupplierInvitationStep from '@/components/CreateAuctionSteps/SupplierInvitationStep';
 import ReviewLaunchStep from '@/components/CreateAuctionSteps/ReviewLaunchStep';
-import Loader from '@/components/Loader';
+import EPHeader from '@/components/shared/EPHeader';
+import AuctionBreadcrumb from '@/components/shared/AuctionBreadcrumb';
+import Loader from '@/components/shared/Loader';
 
-// ---- TYPE DEFINITIONS ----
 type LotData = {
   lotId?: string;
   hsCode?: string;
   productName?: string;
   material?: string;
-  dimensions?: string;
+  dimensions?: {
+    l?: string;
+    w?: string;
+    h?: string;
+  };
   prevCost?: string | number;
 };
 
@@ -49,29 +51,24 @@ const steps = [
 ];
 
 export default function CreateAuctionPage() {
-  // 1. Step state persisted to localStorage
-const [step, setStep] = useState<number>(0);
-
-// After mount, sync with localStorage
-useEffect(() => {
-  const savedStep = localStorage.getItem('auctionStep');
-  if (savedStep && !isNaN(Number(savedStep))) {
-    setStep(Number(savedStep));
-  }
-}, []);
-
+  const [step, setStep] = useState<number>(0);
   const [auctionData, setAuctionData] = useState<AuctionData>({});
   const [loading, setLoading] = useState<boolean>(false);
-  const router = useRouter();
   const [showErrors, setShowErrors] = useState<boolean>(false);
   const [showLaunchModal, setShowLaunchModal] = useState<boolean>(false);
+  const router = useRouter();
 
-  // 2. Save step to localStorage on step change
+  useEffect(() => {
+    const savedStep = localStorage.getItem('auctionStep');
+    if (savedStep && !isNaN(Number(savedStep))) {
+      setStep(Number(savedStep));
+    }
+  }, []);
+
   useEffect(() => {
     localStorage.setItem('auctionStep', step.toString());
   }, [step]);
 
-  // 3. Save and load draft data
   useEffect(() => {
     const draft = localStorage.getItem('auctionDraft');
     if (draft) {
@@ -79,44 +76,6 @@ useEffect(() => {
     }
   }, []);
 
-  // ---- Modal (can be refactored out) ----
-  function ConfirmLaunchModal({
-    open,
-    onClose,
-    onConfirm,
-  }: {
-    open: boolean;
-    onClose: () => void;
-    onConfirm: () => void;
-  }) {
-    if (!open) return null;
-    return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm">
-        <div className="bg-white rounded-lg shadow-lg p-8 min-w-[350px] max-w-[95vw] flex flex-col items-center relative">
-          <div className="text-lg font-semibold mb-2 text-center">Save &amp; Launch</div>
-          <div className="text-center text-[#555] mb-6">
-            Are you sure you want to save changes &amp; send invitations?
-          </div>
-          <div className="flex gap-3 w-full">
-            <button
-              onClick={onClose}
-              className="w-1/2 py-2 rounded border border-[#DDE1EB] text-sm font-medium bg-[#f8fafc] hover:bg-[#f3f6fb] transition"
-            >
-              Back
-            </button>
-            <button
-              onClick={onConfirm}
-              className="w-1/2 py-2 rounded bg-[#1976D2] text-white text-sm font-medium hover:bg-[#1565c0] transition"
-            >
-              Confirm
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // ---- Navigation & Validation ----
   const requiredFieldsPerStep: Record<number, Array<keyof AuctionData>> = {
     0: ['title', 'type', 'sapCode', 'reservePrice', 'currency'],
     1: ['productName', 'lotCount'],
@@ -145,13 +104,59 @@ useEffect(() => {
     setAuctionData((prev) => ({ ...prev, ...data }));
   };
 
-  // Save auctionData to localStorage as draft
   const saveDraft = () => {
     localStorage.setItem('auctionDraft', JSON.stringify(auctionData));
     alert('Draft saved!');
   };
 
-  // ---- Step Content ----
+  const handleSubmit = async () => {
+    setLoading(true);
+
+    if (
+      !auctionData.title ||
+      !auctionData.reservePrice ||
+      !auctionData.currency ||
+      !auctionData.startTime ||
+      !auctionData.endTime
+    ) {
+      alert('Please fill all required fields.');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auction/create`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(auctionData),
+      });
+
+      setLoading(false);
+
+      if (res.ok) {
+        alert('Auction created successfully!');
+        localStorage.removeItem('auctionStep');
+        localStorage.removeItem('auctionDraft');
+        router.push('/ep-member/dashboard');
+      } else {
+        const data = await res.json();
+        alert(data.message || 'Auction creation failed');
+      }
+    } catch {
+      setLoading(false);
+      alert('Network error');
+    }
+  };
+
+  const handleBack = () => {
+    localStorage.removeItem('auctionStep');
+    router.push('/ep-member/dashboard');
+  };
+
   const renderStepContent = (step: number) => {
     switch (step) {
       case 0:
@@ -181,10 +186,7 @@ useEffect(() => {
       case 3:
         return (
           <SupplierInvitationStep
-            data={{
-              ...auctionData,
-              suppliers: auctionData.suppliers ?? [],
-            }}
+            data={{ ...auctionData, suppliers: auctionData.suppliers ?? [] }}
             onChange={updateAuctionData}
             showErrors={showErrors}
           />
@@ -193,9 +195,7 @@ useEffect(() => {
         return (
           <ReviewLaunchStep
             data={auctionData}
-            onSubmit={function (): void {
-              throw new Error('Function not implemented.');
-            }}
+            onSubmit={() => {}}
           />
         );
       default:
@@ -203,58 +203,46 @@ useEffect(() => {
     }
   };
 
-  // ---- Submission ----
-  const handleSubmit = async () => {
-    setLoading(true);
-    if (
-      !auctionData.title ||
-      !auctionData.reservePrice ||
-      !auctionData.currency ||
-      !auctionData.startTime ||
-      !auctionData.endTime
-    ) {
-      alert('Please fill all required fields.');
-      setLoading(false);
-      return;
-    }
-    try {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auction/create`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(auctionData),
-      });
-      setLoading(false);
-      if (res.ok) {
-        alert('Auction created successfully!');
-        localStorage.removeItem('auctionStep');   // <-- RESET STEP
-        localStorage.removeItem('auctionDraft');  // <-- Optionally clear draft too
-        router.push('/ep/dashboard');
-      } else {
-        const data = await res.json();
-        alert(data.message || 'Auction creation failed');
-      }
-    } catch {
-      setLoading(false);
-      alert('Network error');
-    }
-  };
-
-  // ---- Back Navigation: Reset step for a fresh start ----
-  const handleBack = () => {
-    localStorage.removeItem('auctionStep');
-    router.push('/ep/dashboard');
+  const ConfirmLaunchModal = ({
+    open,
+    onClose,
+    onConfirm,
+  }: {
+    open: boolean;
+    onClose: () => void;
+    onConfirm: () => void;
+  }) => {
+    if (!open) return null;
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm">
+        <div className="bg-white rounded-lg shadow-lg p-8 min-w-[350px] max-w-[95vw] flex flex-col items-center relative">
+          <div className="text-lg font-semibold mb-2 text-center">Save &amp; Launch</div>
+          <div className="text-center text-[#555] mb-6">
+            Are you sure you want to save changes &amp; send invitations?
+          </div>
+          <div className="flex gap-3 w-full">
+            <button
+              onClick={onClose}
+              className="w-1/2 py-2 rounded border border-[#DDE1EB] text-sm font-medium bg-[#f8fafc] hover:bg-[#f3f6fb] transition"
+            >
+              Back
+            </button>
+            <button
+              onClick={onConfirm}
+              className="w-1/2 py-2 rounded bg-[#1976D2] text-white text-sm font-medium hover:bg-[#1565c0] transition"
+            >
+              Confirm
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   return (
     <div className="flex min-h-screen bg-white text-[#383838] flex-col">
       <EPHeader />
-
       <main className="flex-1 p-8 max-w-6xl mx-auto">
-        {/* Header with back button */}
         <div
           className="flex items-center gap-2 mb-1 cursor-pointer"
           onClick={handleBack}
@@ -266,21 +254,18 @@ useEffect(() => {
           Fill out the details and create a new auction
         </p>
 
-        {/* Stepper */}
         <AuctionBreadcrumb
           steps={steps}
           currentStep={step}
           onStepClick={(index) => {
-            if (index <= step) setStep(index); // only allow backward
+            if (index <= step) setStep(index);
           }}
         />
 
-        {/* Step Content */}
         <div className="bg-white pt-6 rounded border-t border-[#EAECF0]">
           {renderStepContent(step)}
         </div>
 
-        {/* Footer navigation */}
         <div className="flex bottom-0 justify-between mt-6">
           <button
             className="border border-[#DDE1EB] px-4 py-2 rounded text-sm"
@@ -309,6 +294,7 @@ useEffect(() => {
             </button>
           </div>
         </div>
+
         <ConfirmLaunchModal
           open={showLaunchModal}
           onClose={() => setShowLaunchModal(false)}
@@ -317,6 +303,7 @@ useEffect(() => {
             handleSubmit();
           }}
         />
+
         {loading && <Loader />}
       </main>
     </div>

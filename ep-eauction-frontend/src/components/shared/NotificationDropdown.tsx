@@ -10,7 +10,7 @@ const notifications = [
     link: "Monitor",
     linkUrl: "#",
     time: "5m",
-    icon: "/icons/file-text-blue.svg",
+    icon: "/icons/dvr.svg",
     unread: true,
   },
   {
@@ -18,14 +18,14 @@ const notifications = [
     title: "24 supplier has joined",
     subtitle: "Food Service Paper Cups - Q2",
     time: "1h",
-    icon: "/icons/group-purple.svg",
+    icon: "/icons/group_nots.svg",
     unread: false,
   },
   {
     id: 3,
     title: "Auction ‘Q1 Office Supplies’ has ended",
     time: "2h",
-    icon: "/icons/file-text-blue.svg",
+    icon: "/icons/dvr.svg",
     unread: false,
   },
 ];
@@ -82,7 +82,7 @@ export default function NotificationDropdown({ open, onClose }: { open: boolean,
               {n.link && (
                 <a
                   href={n.linkUrl}
-                  className="text-sm text-[#2B72FF] mt-2 block font-medium hover:underline"
+                  className="text-xs text-[#2B72FF] mt-1 hover:underline"
                 >
                   {n.link}
                 </a>

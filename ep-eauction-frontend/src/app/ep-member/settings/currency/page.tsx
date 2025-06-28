@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import DashboardLayout from "@/components/DashboardLayout";
+import DashboardLayout from "@/components/shared/DashboardLayout";
 import Image from "next/image";
-import { CurrencyRateModal } from "@/components/modal/CurrencyRateModal";
+import { CurrencyRateModal } from "@/components/ui/modal/CurrencyRateModal";
 import { Button } from "@/components/ui/button";
 
-const API_BASE = "http://localhost:5000";
+const API_BASE = "https://ep-backend-j7fq.onrender.com";
 
 // ---- Currency type definition ----
 type Currency = {
@@ -95,7 +95,7 @@ export default function WeeklyCurrencyRatesPage() {
         <div>
           <div
             className="flex items-center gap-2 mb-1 cursor-pointer"
-            onClick={() => router.push("/ep/settings")}
+            onClick={() => router.push("/ep-member/settings")}
           >
             <Image width={16} height={16} src="/icons/arrow_left.svg" alt="Back" className="w-4 h-4" />
             <h1 className="text-lg font-semibold text-body">Weekly Currency Rates</h1>

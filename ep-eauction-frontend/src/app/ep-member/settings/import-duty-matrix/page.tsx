@@ -1,12 +1,12 @@
 'use client';
 
-import DashboardLayout from '@/components/DashboardLayout';
+import DashboardLayout from '@/components/shared/DashboardLayout';
 import { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import DutyModal from '../../../../components/modal/DutyModal';
+import DutyModal from '../../../../components/ui/modal/DutyModal';
 
-const API_BASE = "http://localhost:5000";
+const API_BASE = "https://ep-backend-j7fq.onrender.com";
 
 type Country = { _id: string; name: string };
 type Product = { _id: string; name: string; hsCode?: string };
@@ -226,7 +226,7 @@ export default function ImportDutyMatrixPage() {
         <div>
           <div
             className="flex items-center gap-2 mb-1 cursor-pointer"
-            onClick={() => router.push('/ep/settings')}
+            onClick={() => router.push('/ep-member/settings')}
           >
             <Image width={5} height={5} src="/icons/arrow_left.svg" alt="Back" className="w-4 h-4" />
             <h1 className="text-lg font-semibold text-body">Import Duty Matrix</h1>

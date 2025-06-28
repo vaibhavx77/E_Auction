@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import axios, { AxiosError } from 'axios';
-import OtpModal from '@/components/OtpModal';
-import Loader from '@/components/Loader';
+import OtpModal from '@/components/ui/modal/OtpModal';
+import Loader from '@/components/shared/Loader';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -17,19 +17,24 @@ export default function LoginPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(''); // Clear previous errors
+    setError('');
     setLoading(true);
+
     try {
-      await axios.post('http://localhost:5000/api/auth/login', { email, password });
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
+        email,
+        password,
+      });
       setShowOtp(true);
     } catch (err) {
       const error = err as AxiosError<{ message?: string }>;
-      const message = error.response?.data?.message;
-      if (message && message.toLowerCase().includes('invalid')) {
-        setError('Invalid email or password.');
-      } else {
-        setError(message || 'Login failed. Please try again.');
-      }
+      const message = error?.response?.data?.message;
+
+      setError(
+        message?.toLowerCase().includes('invalid')
+          ? 'Invalid email or password.'
+          : message || 'Login failed. Please try again.'
+      );
     } finally {
       setLoading(false);
     }
@@ -37,7 +42,7 @@ export default function LoginPage() {
 
   const handleOtpVerified = (token: string, role: string) => {
     localStorage.setItem('token', token);
-    router.push(role === 'supplier' ? '/supplier/dashboard' : '/ep/dashboard');
+    router.push(role === 'supplier' ? '/supplier/dashboard' : '/ep-member/dashboard');
   };
 
   return (
@@ -53,7 +58,7 @@ export default function LoginPage() {
             Login into your account
           </h2>
 
-          {/* Error message shown here */}
+          {/* Error message */}
           {error && (
             <p className="text-red-600 text-sm text-center mb-4">{error}</p>
           )}
@@ -70,7 +75,7 @@ export default function LoginPage() {
             />
           </div>
 
-          <div className="mb-6">
+          <div className="mb-2">
             <label className="block text-sm font-medium mb-1">Password</label>
             <div className="relative">
               <input
@@ -91,6 +96,17 @@ export default function LoginPage() {
             </div>
           </div>
 
+          {/* Forgot Password */}
+          <div className="text-right text-xs mb-4">
+            <button
+              type="button"
+              onClick={() => router.push('/auth/forgot-password')}
+              className="text-blue-600 hover:underline"
+            >
+              Forgot Password?
+            </button>
+          </div>
+
           <button
             type="submit"
             className="w-full bg-[#007AFF] text-white text-sm font-medium py-2 rounded hover:opacity-90 transition"
@@ -98,9 +114,9 @@ export default function LoginPage() {
             {loading ? <Loader /> : 'Login'}
           </button>
 
-          {/* Register link */}
-          <div className="mt-6 text-center">
-            <span className="text-sm text-gray-600">New user?{' '}</span>
+          {/* Register link (optional) */}
+          {/* <div className="mt-6 text-center">
+            <span className="text-sm text-gray-600">New user? </span>
             <button
               type="button"
               onClick={() => router.push('/auth/ep-register')}
@@ -108,9 +124,10 @@ export default function LoginPage() {
             >
               Register here
             </button>
-          </div>
+          </div> */}
         </form>
       )}
+
       <OtpModal
         email={email}
         open={showOtp}

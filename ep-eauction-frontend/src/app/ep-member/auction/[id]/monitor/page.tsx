@@ -13,7 +13,7 @@ import {
 import { Auction } from '@/types/auction';
 import { Bid } from '@/types/bid';
 import { User } from '@/types/user';
-import Loader from '@/components/Loader';
+import Loader from '@/components/shared/Loader';
 
 interface MonitoringData {
   auction: Auction;
@@ -281,7 +281,7 @@ export default function EPMonitorAuctionPage() {
           </button>
           <span>/</span>
           <button 
-            onClick={() => window.location.href = '/ep/dashboard'}
+            onClick={() => window.location.href = '/ep-member/dashboard'}
             className="hover:text-blue-600 transition-colors"
           >
             Dashboard
@@ -390,12 +390,12 @@ export default function EPMonitorAuctionPage() {
             : 'text-gray-500 border-gray-500'
         }`}>
           {auction.status === 'Active' && !isPaused 
-            ? `● Auction Live - ${formatTime(timeRemaining)} Time Remaining`
+            ? `Live - ${formatTime(timeRemaining)} Time Remaining`
             : auction.status === 'Paused'
-            ? '● Auction Paused'
+            ? 'Paused'
             : auction.status === 'Ended'
-            ? '● Auction Ended'
-            : '● Auction Scheduled'
+            ? 'Ended'
+            : 'Scheduled'
           }
         </div>
       </div>

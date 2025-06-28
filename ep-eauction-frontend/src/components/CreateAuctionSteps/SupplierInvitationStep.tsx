@@ -5,6 +5,7 @@ type SupplierInvitationData = {
   suppliers: string[];
   previewEmail?: string;
 };
+
 type SupplierInvitationStepProps = {
   data: SupplierInvitationData;
   onChange: (data: Partial<SupplierInvitationData>) => void;
@@ -62,19 +63,17 @@ export default function SupplierInvitationStep({
         <p className="text-sm text-[#5E5E65] mb-7">
           Only invited suppliers will receive access to this auction
         </p>
-        {/* Input Row */}
+
         <div className="grid grid-cols-2 gap-6 mb-4">
           <div>
-            <label className="block text-sm mb-1 font-medium">
-              Supplier Email Addresses
-            </label>
+            <label className="block text-sm mb-1 font-medium">Supplier Email Addresses</label>
             <div className="flex items-center gap-2">
               <input
                 ref={inputRef}
                 type="text"
                 placeholder="acme.plastics@supplier.com"
                 value={input}
-                onChange={e => {
+                onChange={(e) => {
                   setInput(e.target.value);
                   setError("");
                 }}
@@ -88,7 +87,6 @@ export default function SupplierInvitationStep({
                 aria-label="Add supplier email"
                 autoComplete="off"
               />
-              {/* Green tick */}
               {emailRegex.test(input.trim()) &&
                 !suppliers.includes(input.trim()) &&
                 input.trim() && (
@@ -99,7 +97,13 @@ export default function SupplierInvitationStep({
                     tabIndex={-1}
                   >
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                      <path d="M5 10.4L8.42857 14L15 7" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path
+                        d="M5 10.4L8.42857 14L15 7"
+                        stroke="white"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
                     </svg>
                   </button>
                 )}
@@ -111,6 +115,7 @@ export default function SupplierInvitationStep({
               </span>
             )}
           </div>
+
           <div>
             <label className="block text-sm mb-1 font-medium">Selection Dropdown</label>
             <select
@@ -122,22 +127,18 @@ export default function SupplierInvitationStep({
           </div>
         </div>
 
-        {/* Invited Suppliers Card */}
         <div className="bg-[#F8FAFC] border border-[#E1E6F0] rounded-xl px-5 py-4 mb-6">
           <div className="font-medium text-[15px] mb-3">
             Invited suppliers{" "}
-            <span className="text-[#7C8597] text-[13px]">
-              ({suppliers.length})
-            </span>
+            <span className="text-[#7C8597] text-[13px]">({suppliers.length})</span>
           </div>
-          {/* Chips in grid - 3 columns on desktop, wraps on mobile */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
             {suppliers.length === 0 ? (
               <span className="col-span-full text-gray-400 italic">
                 No suppliers invited yet.
               </span>
             ) : (
-              suppliers.map(email => (
+              suppliers.map((email) => (
                 <span
                   key={email}
                   className="flex items-center gap-2 bg-white border border-[#DDE1EB] px-3 py-2 rounded-[8px] text-[15px] text-[#222] font-normal transition-shadow hover:shadow-md focus-within:shadow-md"
@@ -151,7 +152,7 @@ export default function SupplierInvitationStep({
                     className="ml-1 rounded hover:bg-red-50 focus:bg-red-50 text-gray-400 hover:text-red-600 focus:text-red-600 transition-colors"
                     aria-label={`Remove ${email}`}
                     tabIndex={0}
-                    onKeyDown={e => {
+                    onKeyDown={(e) => {
                       if (e.key === "Enter" || e.key === " ") handleRemove(email);
                     }}
                   >
@@ -163,7 +164,6 @@ export default function SupplierInvitationStep({
           </div>
         </div>
 
-        {/* Email Preview Card */}
         <div className="border border-[#E1E6F0] rounded-xl bg-[#FCFCFD] p-5">
           <div className="font-medium mb-2 text-[15px]">Email Preview</div>
           <textarea

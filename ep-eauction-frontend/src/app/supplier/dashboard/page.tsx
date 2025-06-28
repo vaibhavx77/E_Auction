@@ -1,11 +1,11 @@
 'use client';
 
-import DashboardLayout from '@/components/DashboardLayout';
+import DashboardLayout from '@/components/shared/DashboardLayout';
 import { useState } from 'react';
 import Image from 'next/image';
-import NotificationDropdown from '@/components/NotificationDropdown';
+import NotificationDropdown from '@/components/shared/NotificationDropdown';
 import { useRouter } from 'next/navigation';
-import SupplierLayout from '@/components/SupplierLayout';
+import SupplierLayout from '@/components/shared/SupplierLayout';
 
 const auctions = [
   {

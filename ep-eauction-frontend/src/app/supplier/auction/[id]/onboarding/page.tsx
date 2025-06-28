@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, memo } from 'react';
-import OnboardingBreadcrumb from '@/components/OnboardingBreadcrumb'; 
+import OnboardingBreadcrumb from '@/components/shared/OnboardingBreadcrumb'; 
 
 const lotsList = [
   { id: 'LOT-001', label: 'Kraft Boxes - Standard Size' },

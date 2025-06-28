@@ -1,10 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import DashboardLayout from '@/components/DashboardLayout';
+import DashboardLayout from '@/components/shared/DashboardLayout';
 import DashboardCardSection from '@/components/EPDashboard/DashboardCardSection';
 import DashboardAuctionTable from '@/components/EPDashboard/DashboardAuctionTable';
-import Loader from '@/components/Loader';
+import Loader from '@/components/shared/Loader';
 import { fetchAuctions } from '@/services/auction.service';
 import { Auction } from '@/types/auction';
 

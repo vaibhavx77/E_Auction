@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Loader from '@/components/Loader';
+import Loader from '@/components/shared/Loader';
 
 export default function OtpModal({
   email,
@@ -47,7 +47,7 @@ export default function OtpModal({
     setLoading(true);
     setError('');
     try {
-      const res = await fetch('http://localhost:5000/api/auth/verify-otp', {
+      const res = await fetch('https://ep-backend-j7fq.onrender.com/api/auth/verify-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, otp }),
@@ -70,7 +70,7 @@ export default function OtpModal({
   const handleResendOtp = async () => {
     setError('');
     try {
-      await fetch('http://localhost:5000/api/auth/resend-otp', {
+      await fetch('https://ep-backend-j7fq.onrender.com/api/auth/resend-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),

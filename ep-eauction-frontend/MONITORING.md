@@ -103,7 +103,7 @@ The EP E-Auction platform now includes comprehensive real-time monitoring capabi
 
 ### Environment Variables
 ```env
-NEXT_PUBLIC_API_URL=http://localhost:5000
+NEXT_PUBLIC_API_URL=https://ep-backend-j7fq.onrender.com
 ```
 
 ### Socket.IO Setup

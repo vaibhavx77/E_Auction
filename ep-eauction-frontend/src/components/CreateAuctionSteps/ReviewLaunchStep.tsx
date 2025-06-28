@@ -11,7 +11,11 @@ type ReviewAuctionData = {
     hsCode?: string;
     productName?: string;
     material?: string;
-    dimensions?: string;
+    dimensions?: {
+      l?: string;
+      w?: string;
+      h?: string;
+    };
     prevCost?: string | number;
   }[];
   startTime?: string;
@@ -35,23 +39,30 @@ const Card = ({ title, children, className = "" }: { title: string; children: Re
   </section>
 );
 
-export default function ReviewLaunchStep({ data }: ReviewLaunchStepProps) {
+// Format dimensions object
+const formatDimensions = (dims?: { l?: string; w?: string; h?: string }) => {
+  if (!dims) return '-';
+  const { l, w, h } = dims;
+  const filled = [l, w, h].filter(Boolean);
+  return filled.length > 0 ? `L${l || '-'} x W${w || '-'} x H${h || '-'}` : '-';
+};
 
-  // Create a fallback for lots if it's undefined or empty
-  const displayLots = data.lots && data.lots.length > 0 
-    ? data.lots 
-    : [{ 
-        lotId: '-', 
-        hsCode: '-', 
+export default function ReviewLaunchStep({ data }: ReviewLaunchStepProps) {
+  const displayLots = data.lots && data.lots.length > 0
+    ? data.lots
+    : [{
+        lotId: '-',
+        hsCode: '-',
         productName: data.productName || '-',
-        material: '-', 
-        dimensions: '-',
-        prevCost: '-' 
+        material: '-',
+        dimensions: { l: '-', w: '-', h: '-' },
+        prevCost: '-'
       }];
 
   return (
     <div className="max-w-3xl mx-auto">
       <h2 className="text-[20px] font-semibold mb-3">Review &amp; Launch</h2>
+
       {/* --- Auction Information --- */}
       <Card title="Auction Information">
         <div className="grid grid-cols-2 gap-x-8 gap-y-4">
@@ -90,10 +101,9 @@ export default function ReviewLaunchStep({ data }: ReviewLaunchStepProps) {
                   <td className="px-4 py-2 border-b">{lot.hsCode || '-'}</td>
                   <td className="px-4 py-2 border-b">{lot.productName || '-'}</td>
                   <td className="px-4 py-2 border-b">
-                    {(lot.material && lot.material !== '-') ? lot.material : ''}
-                    {(lot.material && lot.material !== '-' && lot.dimensions) ? ', ' : ''}
-                    {lot.dimensions || ''}
-                    {(!lot.material || lot.material === '-') && !lot.dimensions ? '-' : ''}
+                    {lot.material || '-'}
+                    {lot.material && lot.dimensions ? ', ' : ''}
+                    {formatDimensions(lot.dimensions)}
                   </td>
                   <td className="px-4 py-2 border-b">{lot.prevCost || '-'}</td>
                 </tr>

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { getSocket } from '@/lib/socket';
-import Loader from '@/components/Loader';
+import Loader from '@/components/shared/Loader';
 
 export default function SupplierAuctionPage() {
   const { id } = useParams();

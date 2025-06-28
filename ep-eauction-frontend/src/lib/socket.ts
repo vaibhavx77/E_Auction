@@ -6,7 +6,7 @@ let socket: Socket | null = null;
 export const getSocket = (): Socket => {
   if (!socket) {
     // Connect to the main backend server which has Socket.IO
-    socket = io(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000');
+    socket = io(process.env.NEXT_PUBLIC_API_URL || 'https://ep-backend-j7fq.onrender.com');
   }
   return socket;
 };

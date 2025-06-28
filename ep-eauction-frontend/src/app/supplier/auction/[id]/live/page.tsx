@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import SupplierLayout from '@/components/SupplierLayout';
-import ConfirmBidModal from '@/components/modal/ConfirmBidModal';
+import SupplierLayout from '@/components/shared/SupplierLayout';
+import ConfirmBidModal from '@/components/ui/modal/ConfirmBidModal';
 
 // Dummy auction data and lots
 const auction = {
